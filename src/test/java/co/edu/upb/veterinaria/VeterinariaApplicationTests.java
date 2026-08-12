@@ -1,10 +1,10 @@
-package co.edu.upb.farmacia;
+package co.edu.upb.veterinaria;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class FarmaciaInventarioApplicationTests {
+class VeterinariaApplicationTests {
 
 	@Test
 	void contextLoads() {

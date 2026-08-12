@@ -1,8 +1,7 @@
-# Inventario de Farmacia API
+# Veterinaria API
 
-API REST para gestionar el inventario de medicamentos de la farmacia **"Salud y Vida"**.
-
-Taller Individual — Plataformas, UPB.
+API REST para la gestión de clientes y sus mascotas, construida con Spring
+Boot como proyecto del curso de Plataformas.
 
 ## Stack
 
@@ -11,32 +10,138 @@ Taller Individual — Plataformas, UPB.
 | Java | 25 |
 | Spring Boot | 4.1.0 |
 | Build | Maven (wrapper incluido) |
-| Base de datos | H2 en memoria |
+| Base de datos | PostgreSQL 18 (local, administrada con pgAdmin 4) |
 | ORM | Spring Data JPA / Hibernate |
+| Tests | H2 en memoria (aislado de la base real) |
 
 ## Arquitectura de capas
 
 ```
-co.edu.upb.farmacia
-├── FarmaciaInventarioApplication.java   @SpringBootApplication
+co.edu.upb.veterinaria
+├── VeterinariaApplication.java   @SpringBootApplication
 ├── model
-│   └── Medicamento.java                 @Entity
+│   ├── Cliente.java               @Entity
+│   └── Mascota.java               @Entity (@ManyToOne hacia Cliente)
 ├── repository
-│   └── MedicamentoRepository.java       @Repository (extends JpaRepository)
+│   ├── ClienteRepository.java     @Repository
+│   └── MascotaRepository.java     @Repository (+ findByClienteId)
 ├── service
-│   └── MedicamentoService.java          @Service (reglas de negocio)
-└── controller
-    ├── MedicamentoController.java       @RestController
-    └── ManejadorGlobalDeErrores.java    @RestControllerAdvice
+│   ├── ClienteService.java        @Service (validaciones)
+│   └── MascotaService.java        @Service (validaciones + resuelve el Cliente real)
+├── controller
+│   ├── ClienteController.java     @RestController
+│   ├── MascotaController.java     @RestController
+│   └── ManejadorGlobalDeErrores.java   @RestControllerAdvice
+└── exception
+    └── RecursoNoEncontradoException.java
 ```
 
-El flujo de una peticion es `Controller -> Service -> Repository -> H2`. El
-controlador no conoce el repositorio, y las validaciones viven unicamente en el
-servicio.
+Flujo de una petición: `Controller -> Service -> Repository -> PostgreSQL`.
 
-## Como ejecutar
+## Modelo de datos
 
-Requiere JDK 25 instalado. No hace falta tener Maven: el proyecto trae el wrapper.
+**Cliente** (el dueño):
+
+| Campo | Tipo |
+|---|---|
+| `id` | `Long` (autoincremental) |
+| `nombre` | `String` |
+| `telefono` | `String` |
+| `email` | `String` |
+
+**Mascota**, asociada a un `Cliente` vía `@ManyToOne` (relación
+unidireccional: la mascota conoce a su dueño, el dueño no carga la lista de
+sus mascotas — evita problemas de serialización JSON cíclica):
+
+| Campo | Tipo |
+|---|---|
+| `id` | `Long` (autoincremental) |
+| `nombre` | `String` |
+| `especie` | `String` |
+| `raza` | `String` |
+| `edad` | `int` |
+| `cliente` | `Cliente` (FK `cliente_id`, con restricción de llave foránea real en Postgres) |
+
+## Validaciones
+
+En `ClienteService`:
+- `nombre` y `telefono` no pueden estar vacíos.
+
+En `MascotaService`:
+- `nombre` no puede estar vacío.
+- `edad` no puede ser negativa.
+- El `cliente` debe existir en la base de datos — si el id no corresponde a
+  ningún cliente real, se rechaza con `404`, no con un guardado silencioso.
+
+Ambos servicios lanzan `IllegalArgumentException` (→ `400`) para datos
+inválidos, y `RecursoNoEncontradoException` (→ `404`) cuando se pide,
+actualiza o borra un id que no existe.
+
+## Endpoints
+
+### Clientes — `/api/clientes`
+
+| Método | Ruta | Descripción | Respuesta |
+|---|---|---|---|
+| `POST` | `/api/clientes` | Crear cliente | `201 CREATED` |
+| `GET` | `/api/clientes` | Listar todos | `200 OK` |
+| `GET` | `/api/clientes/{id}` | Obtener uno | `200 OK` / `404` |
+| `PUT` | `/api/clientes/{id}` | Actualizar | `200 OK` / `404` |
+| `DELETE` | `/api/clientes/{id}` | Eliminar | `204 NO CONTENT` / `404` |
+
+### Mascotas — `/api/mascotas`
+
+| Método | Ruta | Descripción | Respuesta |
+|---|---|---|---|
+| `POST` | `/api/mascotas` | Crear mascota | `201 CREATED` / `404` si el cliente no existe |
+| `GET` | `/api/mascotas` | Listar todas | `200 OK` |
+| `GET` | `/api/mascotas/{id}` | Obtener una | `200 OK` / `404` |
+| `GET` | `/api/mascotas/cliente/{clienteId}` | Mascotas de un dueño | `200 OK` / `404` |
+| `PUT` | `/api/mascotas/{id}` | Actualizar | `200 OK` / `404` |
+| `DELETE` | `/api/mascotas/{id}` | Eliminar | `204 NO CONTENT` / `404` |
+
+## Ejemplos con cURL
+
+Crear un cliente:
+
+```bash
+curl -i -X POST http://localhost:8080/api/clientes -H "Content-Type: application/json" -d "{\"nombre\":\"Camila Restrepo\",\"telefono\":\"3001234567\",\"email\":\"camila@mail.com\"}"
+```
+
+Crear una mascota asociada al cliente con id `1`:
+
+```bash
+curl -i -X POST http://localhost:8080/api/mascotas -H "Content-Type: application/json" -d "{\"nombre\":\"Firulais\",\"especie\":\"Perro\",\"raza\":\"Labrador\",\"edad\":3,\"cliente\":{\"id\":1}}"
+```
+
+Listar las mascotas de ese cliente:
+
+```bash
+curl -i http://localhost:8080/api/mascotas/cliente/1
+```
+
+## Base de datos
+
+La app se conecta a PostgreSQL local (`application.yaml`):
+
+| Campo | Valor |
+|---|---|
+| Host | `localhost:5432` |
+| Base de datos | `VeterinariaS` |
+| Usuario | `postgres` |
+
+La contraseña se lee de la variable de entorno `DB_PASSWORD`, con un valor
+por defecto local en el propio archivo — ajústala a tu instalación de
+PostgreSQL antes de correr el proyecto.
+
+Los tests **no** usan esta base — corren contra H2 en memoria
+(`src/test/resources/application.yaml`), así que `mvnw test` no requiere
+tener Postgres corriendo ni deja datos de prueba en `VeterinariaS`.
+
+## Cómo ejecutar
+
+Requiere JDK 25 y PostgreSQL corriendo localmente con la base `VeterinariaS`
+creada. No hace falta instalar Maven, el wrapper viene incluido.
 
 ```bash
 ./mvnw spring-boot:run
@@ -48,100 +153,7 @@ En Windows:
 mvnw.cmd spring-boot:run
 ```
 
-La aplicacion queda en `http://localhost:8080`.
-
-## Modelo de datos
-
-| Campo | Tipo | Descripcion |
-|---|---|---|
-| `id` | `Long` | Identificador autoincremental (`GenerationType.IDENTITY`) |
-| `nombre` | `String` | Nombre del medicamento |
-| `precio` | `double` | Precio de venta |
-| `cantidadInventario` | `int` | Unidades disponibles |
-
-## Validaciones
-
-Se aplican en `MedicamentoService.guardar(...)` antes de persistir:
-
-- `precio <= 0` lanza `IllegalArgumentException`.
-- `cantidadInventario < 0` lanza `IllegalArgumentException`.
-
-`ManejadorGlobalDeErrores` traduce esa excepcion a una respuesta **400 Bad
-Request** con el mensaje de error, en lugar de un 500.
-
-## Endpoints
-
-Ruta base: `/api/medicamentos`
-
-### Crear un medicamento
-
-```
-POST /api/medicamentos
-Content-Type: application/json
-```
-
-```json
-{ "nombre": "Paracetamol", "precio": 15.5, "cantidadInventario": 100 }
-```
-
-Respuesta **201 CREATED**:
-
-```json
-{ "id": 1, "nombre": "Paracetamol", "precio": 15.5, "cantidadInventario": 100 }
-```
-
-### Listar todos los medicamentos
-
-```
-GET /api/medicamentos
-```
-
-Respuesta **200 OK**:
-
-```json
-[
-  { "id": 1, "nombre": "Paracetamol", "precio": 15.5, "cantidadInventario": 100 }
-]
-```
-
-## Pruebas con cURL
-
-Crear un medicamento:
-
-```bash
-curl -i -X POST http://localhost:8080/api/medicamentos -H "Content-Type: application/json" -d "{\"nombre\":\"Paracetamol\",\"precio\":15.5,\"cantidadInventario\":100}"
-```
-
-Listar los medicamentos:
-
-```bash
-curl -i http://localhost:8080/api/medicamentos
-```
-
-Precio invalido (devuelve 400):
-
-```bash
-curl -i -X POST http://localhost:8080/api/medicamentos -H "Content-Type: application/json" -d "{\"nombre\":\"Aspirina\",\"precio\":0,\"cantidadInventario\":10}"
-```
-
-Cantidad negativa (devuelve 400):
-
-```bash
-curl -i -X POST http://localhost:8080/api/medicamentos -H "Content-Type: application/json" -d "{\"nombre\":\"Ibuprofeno\",\"precio\":8.75,\"cantidadInventario\":-5}"
-```
-
-## Consola de H2
-
-Con la aplicacion corriendo: `http://localhost:8080/h2-console`
-
-| Campo | Valor |
-|---|---|
-| JDBC URL | `jdbc:h2:mem:farmaciadb` |
-| Usuario | `sa` |
-| Contrasena | *(vacia)* |
-
-Desde ahi se puede correr `SELECT * FROM MEDICAMENTO;` para comprobar la
-persistencia.
+La aplicación queda en `http://localhost:8080`.
 
 ## Tests
 
