@@ -122,6 +122,11 @@ curl -i http://localhost:8080/api/mascotas/cliente/1
 
 ## Base de datos
 
+**Importante: el repositorio solo trae el código, no la base de datos.**
+Cada persona que clona el proyecto necesita su propia instancia local de
+PostgreSQL — la app se conecta a `localhost`, o sea, a la máquina de quien
+la ejecuta, no a la de quien subió el código.
+
 La app se conecta a PostgreSQL local (`application.yaml`):
 
 | Campo | Valor |
@@ -129,10 +134,30 @@ La app se conecta a PostgreSQL local (`application.yaml`):
 | Host | `localhost:5432` |
 | Base de datos | `VeterinariaS` |
 | Usuario | `postgres` |
+| Contraseña | `1234` |
 
-La contraseña se lee de la variable de entorno `DB_PASSWORD`, con un valor
-por defecto local en el propio archivo — ajústala a tu instalación de
-PostgreSQL antes de correr el proyecto.
+### Preparación antes de correr el proyecto (una sola vez)
+
+1. Instalar **PostgreSQL** (probado con la versión 18) y, opcionalmente,
+   **pgAdmin 4** para administrarlo visualmente.
+2. Asegurarse de que el rol `postgres` tenga la contraseña **`1234`**.
+   Si ya tienes Postgres instalado con otra contraseña, cámbiala desde
+   pgAdmin 4: `Login/Group Roles` → `postgres` → click derecho →
+   `Properties` → pestaña `Definition` → campo `Password` → `1234` →
+   `Save`.
+3. Crear una base de datos llamada exactamente **`VeterinariaS`** (respeta
+   mayúsculas/minúsculas). Desde pgAdmin 4: click derecho en `Databases` →
+   `Create` → `Database...` → nombre `VeterinariaS` → `Save`.
+
+Con eso, `application.yaml` conecta sin necesidad de tocar nada más — la
+contraseña `1234` ya es el valor por defecto en el propio archivo
+(`password: ${DB_PASSWORD:1234}`). Las **tablas** no hay que crearlas a
+mano: Hibernate las genera solas la primera vez que la app arranca
+(`ddl-auto: update`).
+
+Si en algún momento prefieres usar otra contraseña sin editar el archivo,
+puedes definir la variable de entorno `DB_PASSWORD` antes de arrancar y
+esta reemplaza al valor por defecto.
 
 Los tests **no** usan esta base — corren contra H2 en memoria
 (`src/test/resources/application.yaml`), así que `mvnw test` no requiere
@@ -141,7 +166,8 @@ tener Postgres corriendo ni deja datos de prueba en `VeterinariaS`.
 ## Cómo ejecutar
 
 Requiere JDK 25 y PostgreSQL corriendo localmente con la base `VeterinariaS`
-creada. No hace falta instalar Maven, el wrapper viene incluido.
+creada (ver sección anterior). No hace falta instalar Maven, el wrapper
+viene incluido.
 
 ```bash
 ./mvnw spring-boot:run
