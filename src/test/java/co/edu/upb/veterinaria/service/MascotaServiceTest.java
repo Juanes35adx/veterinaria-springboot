@@ -74,4 +74,101 @@ class MascotaServiceTest {
 		assertThat(mascotaService.listarPorCliente(cliente.getId())).hasSize(2);
 	}
 
+	@Test
+	void rechazaMascotaSinNombre() {
+		Cliente cliente = crearClienteDePrueba();
+		Cliente referenciaSoloConId = new Cliente();
+		referenciaSoloConId.setId(cliente.getId());
+
+		assertThatThrownBy(() -> mascotaService.guardar(new Mascota("", "Perro", "Labrador", 3, referenciaSoloConId)))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("El nombre de la mascota es obligatorio.");
+	}
+
+	@Test
+	void lanzaNoEncontradoAlListarMascotasDeUnClienteInexistente() {
+		assertThatThrownBy(() -> mascotaService.listarPorCliente(999_999L))
+				.isInstanceOf(RecursoNoEncontradoException.class)
+				.hasMessage("No existe un cliente con id 999999");
+	}
+
+	@Test
+	void listaTodasLasMascotasRegistradas() {
+		Cliente cliente = crearClienteDePrueba();
+		Cliente referenciaSoloConId = new Cliente();
+		referenciaSoloConId.setId(cliente.getId());
+		Mascota creada = mascotaService.guardar(new Mascota("Firulais", "Perro", "Labrador", 3, referenciaSoloConId));
+
+		assertThat(mascotaService.listarTodas())
+				.extracting(Mascota::getId)
+				.contains(creada.getId());
+	}
+
+	@Test
+	void obtieneUnaMascotaPorId() {
+		Cliente cliente = crearClienteDePrueba();
+		Cliente referenciaSoloConId = new Cliente();
+		referenciaSoloConId.setId(cliente.getId());
+		Mascota creada = mascotaService.guardar(new Mascota("Firulais", "Perro", "Labrador", 3, referenciaSoloConId));
+
+		assertThat(mascotaService.obtenerPorId(creada.getId()).getNombre()).isEqualTo("Firulais");
+	}
+
+	@Test
+	void lanzaNoEncontradoAlObtenerUnaMascotaInexistente() {
+		assertThatThrownBy(() -> mascotaService.obtenerPorId(999_999L))
+				.isInstanceOf(RecursoNoEncontradoException.class)
+				.hasMessage("No existe una mascota con id 999999");
+	}
+
+	@Test
+	void actualizaUnaMascotaExistente() {
+		Cliente cliente = crearClienteDePrueba();
+		Cliente referenciaSoloConId = new Cliente();
+		referenciaSoloConId.setId(cliente.getId());
+		Mascota creada = mascotaService.guardar(new Mascota("Firulais", "Perro", "Labrador", 3, referenciaSoloConId));
+
+		Cliente otroCliente = crearClienteDePrueba();
+		Cliente referenciaOtroCliente = new Cliente();
+		referenciaOtroCliente.setId(otroCliente.getId());
+		Mascota actualizada = mascotaService.actualizar(creada.getId(),
+				new Mascota("Firulais II", "Perro", "Criollo", 4, referenciaOtroCliente));
+
+		assertThat(actualizada.getNombre()).isEqualTo("Firulais II");
+		assertThat(actualizada.getEdad()).isEqualTo(4);
+		assertThat(actualizada.getCliente().getId()).isEqualTo(otroCliente.getId());
+	}
+
+	@Test
+	void lanzaNoEncontradoAlActualizarUnaMascotaInexistente() {
+		Cliente cliente = crearClienteDePrueba();
+		Cliente referenciaSoloConId = new Cliente();
+		referenciaSoloConId.setId(cliente.getId());
+
+		assertThatThrownBy(() -> mascotaService.actualizar(999_999L,
+				new Mascota("Firulais", "Perro", "Labrador", 3, referenciaSoloConId)))
+				.isInstanceOf(RecursoNoEncontradoException.class)
+				.hasMessage("No existe una mascota con id 999999");
+	}
+
+	@Test
+	void eliminaUnaMascotaExistente() {
+		Cliente cliente = crearClienteDePrueba();
+		Cliente referenciaSoloConId = new Cliente();
+		referenciaSoloConId.setId(cliente.getId());
+		Mascota creada = mascotaService.guardar(new Mascota("Firulais", "Perro", "Labrador", 3, referenciaSoloConId));
+
+		mascotaService.eliminar(creada.getId());
+
+		assertThatThrownBy(() -> mascotaService.obtenerPorId(creada.getId()))
+				.isInstanceOf(RecursoNoEncontradoException.class);
+	}
+
+	@Test
+	void lanzaNoEncontradoAlEliminarUnaMascotaInexistente() {
+		assertThatThrownBy(() -> mascotaService.eliminar(999_999L))
+				.isInstanceOf(RecursoNoEncontradoException.class)
+				.hasMessage("No existe una mascota con id 999999");
+	}
+
 }

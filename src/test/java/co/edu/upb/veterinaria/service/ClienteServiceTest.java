@@ -65,4 +65,28 @@ class ClienteServiceTest {
 				.hasMessage("No existe un cliente con id 999999");
 	}
 
+	@Test
+	void listaTodosLosClientesRegistrados() {
+		Cliente creado = clienteService.guardar(new Cliente("Laura Gomez", "3006543210", "laura@mail.com"));
+
+		assertThat(clienteService.listarTodos())
+				.extracting(Cliente::getId)
+				.contains(creado.getId());
+	}
+
+	@Test
+	void lanzaNoEncontradoAlActualizarUnIdInexistente() {
+		assertThatThrownBy(() -> clienteService.actualizar(999_999L,
+				new Cliente("Nombre", "3000000000", "correo@mail.com")))
+				.isInstanceOf(RecursoNoEncontradoException.class)
+				.hasMessage("No existe un cliente con id 999999");
+	}
+
+	@Test
+	void lanzaNoEncontradoAlEliminarUnIdInexistente() {
+		assertThatThrownBy(() -> clienteService.eliminar(999_999L))
+				.isInstanceOf(RecursoNoEncontradoException.class)
+				.hasMessage("No existe un cliente con id 999999");
+	}
+
 }
