@@ -1,5 +1,6 @@
 package co.edu.upb.veterinaria.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -34,6 +35,12 @@ public class Prescripcion {
 	public Prescripcion() {
 	}
 
+	/**
+	 * Constructor de conveniencia para codigo Java y tests. Se marca como
+	 * DISABLED para que Jackson use el constructor vacio + setters al leer
+	 * JSON, y no falle al recibir referencias parciales como {"id": 1}.
+	 */
+	@JsonCreator(mode = JsonCreator.Mode.DISABLED)
 	public Prescripcion(ConsultaMedica consulta, Medicamento medicamento, String dosis, String duracion, int cantidad) {
 		this.consulta = consulta;
 		this.medicamento = medicamento;

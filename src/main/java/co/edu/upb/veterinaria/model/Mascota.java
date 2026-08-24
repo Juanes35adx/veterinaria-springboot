@@ -1,5 +1,6 @@
 package co.edu.upb.veterinaria.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -36,6 +37,15 @@ public class Mascota {
 	public Mascota() {
 	}
 
+	/**
+	 * Constructor de conveniencia para usar desde codigo Java y tests.
+	 *
+	 * Se marca como DISABLED para que Jackson NO lo use al deserializar JSON:
+	 * debe usar el constructor vacio + los setters. De lo contrario, una
+	 * referencia parcial como {"id": 2} intentaria pasar null al parametro
+	 * primitivo 'edad' y la peticion fallaria con 400.
+	 */
+	@JsonCreator(mode = JsonCreator.Mode.DISABLED)
 	public Mascota(String nombre, String especie, String raza, int edad, Cliente cliente) {
 		this.nombre = nombre;
 		this.especie = especie;

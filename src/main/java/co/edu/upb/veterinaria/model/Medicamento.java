@@ -1,5 +1,6 @@
 package co.edu.upb.veterinaria.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -30,6 +31,12 @@ public class Medicamento {
 	public Medicamento() {
 	}
 
+	/**
+	 * Constructor de conveniencia para codigo Java y tests. Se marca como
+	 * DISABLED para que Jackson use el constructor vacio + setters al leer
+	 * JSON, y no falle al recibir referencias parciales como {"id": 4}.
+	 */
+	@JsonCreator(mode = JsonCreator.Mode.DISABLED)
 	public Medicamento(String nombre, String principioActivo, String presentacion, double precio, int stock, int stockMinimo) {
 		this.nombre = nombre;
 		this.principioActivo = principioActivo;

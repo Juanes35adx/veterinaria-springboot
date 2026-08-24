@@ -2,6 +2,7 @@ package co.edu.upb.veterinaria.model;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -41,6 +42,12 @@ public class ConsultaMedica {
 	public ConsultaMedica() {
 	}
 
+	/**
+	 * Constructor de conveniencia para codigo Java y tests. Se marca como
+	 * DISABLED para que Jackson use el constructor vacio + setters al leer
+	 * JSON, y no falle al recibir referencias parciales como {"id": 1}.
+	 */
+	@JsonCreator(mode = JsonCreator.Mode.DISABLED)
 	public ConsultaMedica(Mascota mascota, Veterinario veterinario, String motivo, double pesoKg, double temperaturaC, String observaciones) {
 		this.mascota = mascota;
 		this.veterinario = veterinario;
