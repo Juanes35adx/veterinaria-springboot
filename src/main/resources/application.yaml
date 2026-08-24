@@ -15,3 +15,12 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+
+# --- Seguridad: firma de los tokens JWT ---
+# La clave se lee de la variable de entorno JWT_SECRET; el valor por defecto
+# es solo para desarrollo local. En un despliegue real debe definirse la
+# variable con un secreto propio y no publicado.
+jwt:
+  secret: ${JWT_SECRET:clave-de-desarrollo-para-firmar-tokens-jwt-veterinaria-upb-2026}
+  # 8 horas, expresadas en milisegundos
+  expiracion-ms: 28800000

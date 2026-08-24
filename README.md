@@ -27,7 +27,9 @@ co.edu.upb.veterinaria
 │   ├── Medicamento.java                 @Entity (Almacén / Farmacia con stock)
 │   ├── ConsultaMedica.java              @Entity (@ManyToOne hacia Mascota y Veterinario)
 │   ├── Diagnostico.java                 @Entity (@ManyToOne hacia ConsultaMedica)
-│   └── Prescripcion.java                @Entity (@ManyToOne hacia ConsultaMedica y Medicamento)
+│   ├── Prescripcion.java                @Entity (@ManyToOne hacia ConsultaMedica y Medicamento)
+│   ├── Usuario.java                     @Entity (login: username + password cifrada + rol)
+│   └── Rol.java                         enum (ADMIN, VETERINARIO, RECEPCIONISTA)
 ├── repository
 │   ├── ClienteRepository.java            @Repository
 │   ├── MascotaRepository.java            @Repository
@@ -35,7 +37,8 @@ co.edu.upb.veterinaria
 │   ├── MedicamentoRepository.java        @Repository
 │   ├── ConsultaMedicaRepository.java     @Repository
 │   ├── DiagnosticoRepository.java        @Repository
-│   └── PrescripcionRepository.java       @Repository
+│   ├── PrescripcionRepository.java       @Repository
+│   └── UsuarioRepository.java            @Repository
 ├── service
 │   ├── ClienteService.java               @Service (validaciones)
 │   ├── MascotaService.java               @Service (validaciones + resuelve Cliente)
@@ -43,7 +46,9 @@ co.edu.upb.veterinaria
 │   ├── MedicamentoService.java           @Service (validaciones)
 │   ├── ConsultaMedicaService.java        @Service (validaciones + resuelve Mascota y Veterinario)
 │   ├── DiagnosticoService.java           @Service (validaciones + resuelve ConsultaMedica)
-│   └── PrescripcionService.java          @Service (deduce stock de Medicamento en PostgreSQL)
+│   ├── PrescripcionService.java          @Service (deduce stock de Medicamento en PostgreSQL)
+│   ├── UsuarioService.java               @Service (registro, cifrado BCrypt, login)
+│   └── CredencialesInvalidasException.java
 ├── controller
 │   ├── ClienteController.java            @RestController (/api/clientes)
 │   ├── MascotaController.java            @RestController (/api/mascotas)
@@ -52,12 +57,22 @@ co.edu.upb.veterinaria
 │   ├── ConsultaMedicaController.java     @RestController (/api/consultas)
 │   ├── DiagnosticoController.java        @RestController (/api/diagnosticos)
 │   ├── PrescripcionController.java       @RestController (/api/prescripciones)
-│   └── ManejadorGlobalDeErrores.java     @RestControllerAdvice
+│   ├── AuthController.java               @RestController (/api/auth/login)
+│   ├── UsuarioController.java            @RestController (/api/usuarios, solo ADMIN)
+│   ├── dto/LoginRequest.java, LoginResponse.java
+│   └── ManejadorGlobalDeErrores.java     @RestControllerAdvice (400/401/403/404)
+├── security
+│   ├── JwtService.java                   Genera y valida los tokens JWT
+│   ├── JwtAuthenticationFilter.java      Filtro: lee el header y autentica la petición
+│   ├── SecurityConfig.java               Reglas: que rol entra a que ruta
+│   ├── UserDetailsServiceImpl.java       Conecta Spring Security con la tabla Usuario
+│   ├── ManejadorNoAutenticado.java       401 cuando no hay token valido
+│   └── UsuariosIniciales.java            Crea un usuario de cada rol al arrancar
 └── exception
     └── RecursoNoEncontradoException.java
 ```
 
-Flujo de una petición: `Controller -> Service -> Repository -> PostgreSQL`.
+Flujo de una petición: `Filtro JWT -> Controller -> Service -> Repository -> PostgreSQL`.
 
 ---
 
@@ -72,6 +87,64 @@ erDiagram
     CONSULTA_MEDICA ||--o{ PRESCRIPCION : "genera"
     MEDICAMENTO ||--o{ PRESCRIPCION : "es recetado en"
 ```
+
+---
+
+## Autenticación y autorización por rol
+
+La API usa **JWT** (JSON Web Token). Todas las rutas exigen un token válido en la
+cabecera `Authorization: Bearer <token>`, excepto `/api/auth/login`.
+
+### Cómo iniciar sesión
+
+```bash
+curl -i -X POST http://localhost:8080/api/auth/login -H "Content-Type: application/json" -d "{\"username\":\"admin\",\"password\":\"admin123\"}"
+```
+
+Respuesta:
+
+```json
+{ "token": "eyJhbGc...", "username": "admin", "rol": "ADMIN", "nombreCompleto": "Administrador del sistema", "expiraEnMs": 28800000 }
+```
+
+Ese `token` se usa en el resto de peticiones:
+
+```bash
+curl -i http://localhost:8080/api/clientes -H "Authorization: Bearer eyJhbGc..."
+```
+
+### Usuarios de prueba (se crean solos al arrancar la app)
+
+| Username | Password | Rol |
+|---|---|---|
+| `admin` | `admin123` | ADMIN |
+| `veterinario` | `vet123` | VETERINARIO |
+| `recepcion` | `recep123` | RECEPCIONISTA |
+
+### Qué puede hacer cada rol
+
+| Ruta | ADMIN | VETERINARIO | RECEPCIONISTA |
+|---|---|---|---|
+| `/api/usuarios/**` | Todo | ❌ | ❌ |
+| `DELETE` en cualquier ruta | Sí | ❌ | ❌ |
+| `/api/veterinarios/**` (crear/editar) | Sí | ❌ | ❌ |
+| `/api/veterinarios` (solo consultar) | Sí | Sí | Sí |
+| `/api/consultas/**`, `/api/diagnosticos/**`, `/api/prescripciones/**` | Sí | Sí | ❌ |
+| `/api/medicamentos` (solo consultar) | Sí | Sí | Sí |
+| `/api/medicamentos/**` (crear/editar) | Sí | Sí | ❌ |
+| `/api/clientes/**`, `/api/mascotas/**` | Sí | Sí | Sí |
+
+### Códigos de respuesta relacionados con seguridad
+
+| Situación | Código |
+|---|---|
+| Sin token, o token inválido/expirado | `401 Unauthorized` |
+| Token válido pero el rol no tiene permiso sobre esa ruta | `403 Forbidden` |
+| Login con usuario o contraseña incorrectos | `401 Unauthorized` |
+
+Las contraseñas se guardan siempre cifradas con **BCrypt** (nunca en texto
+plano), y el campo `password` de `Usuario` está marcado con `@JsonIgnore`
+para que jamás salga en una respuesta JSON, ni siquiera por accidente.
 
 ---
 

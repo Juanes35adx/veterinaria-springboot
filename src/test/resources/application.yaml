@@ -13,3 +13,8 @@ spring:
     hibernate:
       ddl-auto: create-drop
     show-sql: true
+
+# Clave de firma solo para los tests.
+jwt:
+  secret: clave-exclusiva-para-tests-automatizados-de-veterinaria-2026
+  expiracion-ms: 3600000
