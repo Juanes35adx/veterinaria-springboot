@@ -6,6 +6,7 @@ import java.util.Map;
 
 import co.edu.upb.veterinaria.exception.RecursoNoEncontradoException;
 import co.edu.upb.veterinaria.service.CredencialesInvalidasException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /**
  * Traduce las excepciones del servicio en respuestas HTTP con significado
- * (400, 401, 403, 404), en lugar de dejar que se propaguen como un error 500.
+ * (400, 401, 403, 404, 409), en lugar de dejar que se propaguen como un error 500.
  */
 @RestControllerAdvice
 public class ManejadorGlobalDeErrores {
@@ -39,6 +40,18 @@ public class ManejadorGlobalDeErrores {
 	@ExceptionHandler(AccessDeniedException.class)
 	public ResponseEntity<Map<String, Object>> manejarAccesoDenegado(AccessDeniedException ex) {
 		return construirRespuesta(HttpStatus.FORBIDDEN, "No tiene permisos para realizar esta accion.");
+	}
+
+	/**
+	 * Se intento borrar (o modificar) un registro que otra tabla todavia
+	 * referencia por llave foranea, por ejemplo eliminar un Cliente que aun
+	 * tiene Mascotas asociadas. Sin este manejador, Postgres rechaza la
+	 * operacion y eso se propagaba como un 500 sin explicacion.
+	 */
+	@ExceptionHandler(DataIntegrityViolationException.class)
+	public ResponseEntity<Map<String, Object>> manejarConflictoDeIntegridad(DataIntegrityViolationException ex) {
+		return construirRespuesta(HttpStatus.CONFLICT,
+				"No se puede completar la operacion porque este registro tiene otros datos asociados (por ejemplo, mascotas, consultas o recetas). Elimine primero esos registros relacionados.");
 	}
 
 	private ResponseEntity<Map<String, Object>> construirRespuesta(HttpStatus status, String mensaje) {
