@@ -2,25 +2,18 @@ spring:
   application:
     name: veterinaria
 
-  # --- Base de datos real: PostgreSQL local, administrada con pgAdmin 4 ---
   datasource:
-    url: jdbc:postgresql://localhost:5432/VeterinariaS
-    driver-class-name: org.postgresql.Driver
-    username: postgres
-    password: ${DB_PASSWORD:1234}
+    url: jdbc:h2:mem:veterinaria;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ''
 
-  # --- JPA / Hibernate ---
   jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: update
     show-sql: true
 
-# --- Seguridad: firma de los tokens JWT ---
-# La clave se lee de la variable de entorno JWT_SECRET; el valor por defecto
-# es solo para desarrollo local. En un despliegue real debe definirse la
-# variable con un secreto propio y no publicado.
 jwt:
-  secret: ${JWT_SECRET:clave-de-desarrollo-para-firmar-tokens-jwt-veterinaria-upb-2026}
-  # 8 horas, expresadas en milisegundos
+  secret: 
   expiracion-ms: 28800000
