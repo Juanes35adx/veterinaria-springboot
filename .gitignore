@@ -31,3 +31,12 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Frontend ###
+frontend/node_modules/
+frontend/.angular/
+frontend/dist/
+frontend/.vscode/
+
+*.bak
+*.postgres
