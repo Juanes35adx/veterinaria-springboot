@@ -1,86 +1,89 @@
 # Protozoo · Frontend Angular
 
-Frontend moderno para el sistema de gestión de clínica veterinaria y farmacia, conectado al backend `veterinaria-springboot` a través de API REST y autenticación JWT con roles.
+SPA para el sistema de gestión de clínica veterinaria y farmacia. Consume la API REST del backend `veterinaria-springboot` (raíz de este repositorio) y se autentica con JWT.
 
----
+## Tecnologías
 
-## ?? Tecnologías
+- **Framework:** Angular 22 (componentes standalone)
+- **Lenguaje:** TypeScript 6 en modo estricto
+- **Autenticación:** JWT guardado en `localStorage`, interceptor HTTP y guards de rol
+- **Desarrollo:** Angular Dev Server con proxy hacia el backend
 
-* **Framework:** Angular 22 (Standalone Components & Signals)
-* **Lenguaje:** TypeScript 6
-* **Estilos:** Vanilla CSS con Sistema de Diseño Clínico Moderno
-* **Autenticación:** JWT con interceptor HTTP y Guards de roles
-* **Servidor Dev:** Angular Dev Server con Proxy integrado hacia `http://localhost:8080`
+## Requisitos previos
 
----
-
-## ?? Requisitos Previos
-
-1. **Backend en ejecución:**
-   Tener corriendo el backend `veterinaria-springboot` en el puerto `8080`:
+1. **Node.js 24.15 o superior** (o 22.22.3+ / 26+). Angular 22 no arranca con versiones anteriores. Verifica con `node -v`.
+2. **Backend en ejecución** en el puerto `8080`. Desde la raíz del repositorio, con PostgreSQL encendido y la base `VeterinariaS` creada (ver el README de la raíz):
    ```cmd
-   cd ..\veterinaria-springboot
-   mvnw.cmd spring-boot:run
+   .\mvnw.cmd spring-boot:run
    ```
-2. **Node.js:** v18+ o v24+ (LTS).
 
----
+## Instalación y ejecución
 
-## ?? Cómo Ejecutar el Frontend
+Desde la carpeta `frontend/`:
 
-1. Desde esta carpeta (`veterinaria-frontend`), inicia el servidor de desarrollo:
-   ```cmd
-   npm start
-   ```
-   *(o `npm run watch` / `npx ng serve`)*
+```cmd
+npm install
+npm start
+```
 
-2. Abre en tu navegador:
-   ?? **http://localhost:4200**
+Abre **http://localhost:4200**. La primera vez `npm install` descarga las dependencias; después basta con `npm start`.
 
----
+## Configurar la URL del backend
 
-## ?? Cuentas de Acceso (Demo)
+El frontend llama a rutas relativas (`/api/clientes`, `/api/auth/login`, ...) y el servidor de desarrollo las reenvía al backend según [`proxy.conf.json`](proxy.conf.json):
 
-El formulario de Login cuenta con **botones de acceso rápido de un clic** para rellenar automáticamente las credenciales:
+```json
+{
+  "/api": {
+    "target": "http://localhost:8080"
+  }
+}
+```
 
-| Rol | Usuario | Contraseña | Permisos Principales |
+Si el backend corre en otra dirección o puerto, cambia el valor de `target` y reinicia `npm start`. Como el navegador solo habla con el puerto 4200, no hace falta configurar CORS en el backend.
+
+## Cuentas de demostración
+
+El login tiene botones que rellenan estas credenciales (las crea el backend al arrancar):
+
+| Rol | Usuario | Contraseña | Acceso |
 |---|---|---|---|
-| **ADMIN** | `admin` | `admin123` | Control total, gestión de usuarios, veterinarios, farmacia, clínica y eliminación |
-| **VETERINARIO** | `veterinario` | `vet123` | Área clínica (consultas, diagnósticos, emitir recetas con descuento de stock) |
-| **RECEPCIONISTA** | `recepcion` | `recep123` | Área de mostrador (clientes, mascotas, catálogo de farmacia) |
+| ADMIN | `admin` | `admin123` | Todo, incluido usuarios, veterinarios y eliminar registros |
+| VETERINARIO | `veterinario` | `vet123` | Área clínica: consultas, diagnósticos y recetas |
+| RECEPCIONISTA | `recepcion` | `recep123` | Clientes, mascotas y consulta de farmacia |
 
----
+## Estructura del código
 
-## ? Módulos y Funcionalidades
+```
+src/app/
+├── core/
+│   ├── models/          Interfaces de las entidades y de los cuerpos de petición
+│   ├── services/api/    Un servicio por entidad: todas las llamadas HTTP viven aquí
+│   ├── services/        Sesión (auth), notificaciones y tema
+│   ├── interceptors/    Agrega el token a cada petición y traduce los errores del backend
+│   └── guards/          authGuard (exige sesión) y roleGuard (exige rol)
+├── layout/              Barra superior, menú lateral y marco de las pantallas
+├── shared/components/   Modal, diálogo de confirmación y avisos reutilizables
+└── modules/             Una pantalla por área: auth, dashboard, clientes, mascotas,
+                         consultas, medicamentos, veterinarios y usuarios
+```
 
-1. **Dashboard:**
-   - Métricas en tiempo real (total clientes, pacientes, consultas realizadas).
-   - Semáforo y alertas automáticas de insumos farmacéuticos con stock bajo o agotado.
-   - Listado de consultas recientes y accesos rápidos.
+Los componentes no usan `HttpClient`: siempre pasan por un servicio de `core/services/api/`.
 
-2. **Clientes & Propietarios:**
-   - Registro, edición y búsqueda reactiva de clientes.
-   - Explorador de mascotas asociadas a cada cliente.
-   - Protección de integridad referencial.
+## Flujo de autenticación
 
-3. **Pacientes / Mascotas:**
-   - Registro con selección de cliente y filtros por especie (?? Perros, ?? Gatos, ?? Otros).
-   - Acceso directo al historial clínico del paciente.
+1. `login.component` llama a `AuthService.login()`, que hace `POST /api/auth/login`.
+2. La respuesta (token, usuario y rol) se guarda en `localStorage`, así la sesión sobrevive a recargar la página.
+3. `auth.interceptor` agrega `Authorization: Bearer <token>` a toda petición que no sea el login.
+4. `error.interceptor` muestra un aviso según el código: 401 (credenciales o sesión inválidas; si la sesión expiró, cierra sesión), 403, 404, 409 o sin conexión.
+5. `logout()` borra el token y redirige a `/login`.
 
-4. **Área Clínica (Consultas, Diagnósticos y Recetas):**
-   - Registro de consultas médicas con toma de signos vitales (peso, temperatura) y motivo.
-   - Expediente clínico interactivo:
-     - Registro y listado de diagnósticos por nivel de gravedad (Leve, Moderada, Grave, Crítica).
-     - Emisión de recetas médicas farmacéuticas con **descuento automático de stock** en base de datos.
-     - Cancelación de recetas con **reintegro automático de stock**.
+## Funcionalidades
 
-5. **Farmacia e Inventario:**
-   - Catálogo de medicamentos con precios en pesos ($ COP).
-   - Semáforo de stock (Disponible, Stock Bajo, Agotado).
-   - Formulario de alta y actualización de insumos.
+- **Panel:** totales de clientes, mascotas y consultas, alertas de stock bajo y consultas recientes.
+- **Clientes y mascotas:** listado, alta, edición y eliminación con confirmación.
+- **Consultas:** registro de consultas con signos vitales; dentro de cada expediente, diagnósticos y recetas. Al emitir una receta el backend descuenta el stock, y al cancelarla lo devuelve.
+- **Farmacia:** catálogo con semáforo de stock (disponible, bajo, agotado).
+- **Veterinarios y usuarios:** gestión reservada al ADMIN.
 
-6. **Equipo Médico Veterinario:**
-   - Directorio de médicos con especialidad, tarjeta profesional y datos de contacto.
-
-7. **Administración de Usuarios:**
-   - Módulo exclusivo para administradores para dar de alta cuentas asignando roles (`ADMIN`, `VETERINARIO`, `RECEPCIONISTA`).
+Los botones se muestran u ocultan según el rol, pero la autorización real la hace el backend: una petición sin permiso responde 403 aunque se salte la interfaz.

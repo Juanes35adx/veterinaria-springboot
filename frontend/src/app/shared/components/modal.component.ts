@@ -8,7 +8,7 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   template: `
     @if (isOpen) {
-      <div class="modal-backdrop" (click)="onBackdropClick($event)">
+      <div class="modal-backdrop" (click)="onBackdropClick()">
         <div class="modal-container" [style.max-width]="maxWidth" (click)="$event.stopPropagation()">
           <div class="modal-header">
             <h3 class="modal-title">{{ title }}</h3>
@@ -111,7 +111,7 @@ export class ModalComponent {
     }
   }
 
-  onBackdropClick(event: MouseEvent) {
+  onBackdropClick() {
     this.close.emit();
   }
 }

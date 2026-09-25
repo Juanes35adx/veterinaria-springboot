@@ -1,6 +1,5 @@
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { NotificationService } from '../services/notification.service';
 import { AuthService } from '../services/auth.service';
@@ -8,7 +7,6 @@ import { AuthService } from '../services/auth.service';
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const notificationService = inject(NotificationService);
   const authService = inject(AuthService);
-  const router = inject(Router);
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
@@ -41,7 +39,12 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         case 400:
           notificationService.warning(errorMessage, 'Datos inválidos');
           break;
+        // 0: sin respuesta del servidor. 502/503/504: el proxy de desarrollo no logra
+        // conectar con el backend (llega como un error HTTP, no como estado 0).
         case 0:
+        case 502:
+        case 503:
+        case 504:
           notificationService.error('No se pudo conectar con el servidor backend. Asegúrate de que Spring Boot esté en ejecución en el puerto 8080.', 'Error de Conexión');
           break;
         default:
