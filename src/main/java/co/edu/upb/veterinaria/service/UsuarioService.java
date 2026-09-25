@@ -23,6 +23,7 @@ public class UsuarioService {
 	 * Registra un usuario nuevo, cifrando su contraseña antes de guardarla.
 	 */
 	public Usuario registrar(Usuario usuario) {
+		usuario.setId(null); // crear nunca sobreescribe un registro existente
 		validar(usuario);
 		if (usuarioRepository.existsByUsername(usuario.getUsername())) {
 			throw new IllegalArgumentException("Ya existe un usuario con el username '" + usuario.getUsername() + "'.");

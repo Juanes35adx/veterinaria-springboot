@@ -21,6 +21,7 @@ public class MascotaService {
 	}
 
 	public Mascota guardar(Mascota mascota) {
+		mascota.setId(null); // crear nunca sobreescribe un registro existente
 		validarDatosBasicos(mascota);
 		mascota.setCliente(resolverClienteExistente(mascota));
 		return mascotaRepository.save(mascota);

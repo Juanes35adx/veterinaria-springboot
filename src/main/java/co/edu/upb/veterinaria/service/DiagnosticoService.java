@@ -21,6 +21,7 @@ public class DiagnosticoService {
 	}
 
 	public Diagnostico guardar(Diagnostico diagnostico) {
+		diagnostico.setId(null); // crear nunca sobreescribe un registro existente
 		validar(diagnostico);
 		diagnostico.setConsulta(resolverConsultaExistente(diagnostico));
 		return diagnosticoRepository.save(diagnostico);

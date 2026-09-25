@@ -29,6 +29,7 @@ public class PrescripcionService {
 
 	@Transactional
 	public Prescripcion guardar(Prescripcion prescripcion) {
+		prescripcion.setId(null); // crear nunca sobreescribe un registro existente
 		validar(prescripcion);
 		ConsultaMedica consulta = resolverConsultaExistente(prescripcion);
 		Medicamento medicamento = resolverMedicamentoExistente(prescripcion);

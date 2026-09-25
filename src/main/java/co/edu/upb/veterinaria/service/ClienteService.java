@@ -17,6 +17,7 @@ public class ClienteService {
 	}
 
 	public Cliente guardar(Cliente cliente) {
+		cliente.setId(null); // crear nunca sobreescribe un registro existente
 		validar(cliente);
 		return clienteRepository.save(cliente);
 	}

@@ -17,6 +17,7 @@ public class MedicamentoService {
 	}
 
 	public Medicamento guardar(Medicamento medicamento) {
+		medicamento.setId(null); // crear nunca sobreescribe un registro existente
 		validar(medicamento);
 		return medicamentoRepository.save(medicamento);
 	}

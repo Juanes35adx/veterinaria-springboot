@@ -1,7 +1,7 @@
 package co.edu.upb.veterinaria.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -14,7 +14,8 @@ import jakarta.persistence.Id;
  * Usuario que puede autenticarse en la API.
  *
  * La contraseña se guarda siempre cifrada con BCrypt (nunca en texto plano)
- * y se marca con @JsonIgnore para que jamas salga en una respuesta JSON.
+ * y se marca como WRITE_ONLY: se acepta al recibir el JSON (para crear el
+ * usuario), pero jamas sale en una respuesta.
  */
 @Entity
 public class Usuario {
@@ -26,7 +27,7 @@ public class Usuario {
 	@Column(unique = true, nullable = false)
 	private String username;
 
-	@JsonIgnore
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	@Column(nullable = false)
 	private String password;
 

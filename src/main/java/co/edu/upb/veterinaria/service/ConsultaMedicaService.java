@@ -27,6 +27,7 @@ public class ConsultaMedicaService {
 	}
 
 	public ConsultaMedica guardar(ConsultaMedica consulta) {
+		consulta.setId(null); // crear nunca sobreescribe un registro existente
 		validarDatosBasicos(consulta);
 		consulta.setMascota(resolverMascotaExistente(consulta));
 		consulta.setVeterinario(resolverVeterinarioExistente(consulta));

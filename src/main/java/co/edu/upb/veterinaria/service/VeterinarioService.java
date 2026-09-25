@@ -17,6 +17,7 @@ public class VeterinarioService {
 	}
 
 	public Veterinario guardar(Veterinario veterinario) {
+		veterinario.setId(null); // crear nunca sobreescribe un registro existente
 		validar(veterinario);
 		return veterinarioRepository.save(veterinario);
 	}
