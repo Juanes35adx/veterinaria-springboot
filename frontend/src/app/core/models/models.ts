@@ -84,6 +84,46 @@ export interface Prescripcion {
   cantidad: number;
 }
 
+/**
+ * Cuerpos de peticion (POST/PUT). El backend relaciona entidades por id,
+ * asi que las referencias viajan solo como { id } y no como el objeto completo.
+ */
+export interface Referencia {
+  id: number;
+}
+
+export interface MascotaRequest {
+  nombre: string;
+  especie: string;
+  raza: string;
+  edad: number;
+  cliente: Referencia;
+}
+
+export interface ConsultaRequest {
+  mascota: Referencia;
+  veterinario: Referencia;
+  motivo: string;
+  pesoKg: number;
+  temperaturaC: number;
+  observaciones: string;
+}
+
+export interface DiagnosticoRequest {
+  consulta: Referencia;
+  descripcion: string;
+  gravedad: string;
+  tratamiento: string;
+}
+
+export interface PrescripcionRequest {
+  consulta: Referencia;
+  medicamento: Referencia;
+  dosis: string;
+  duracion: string;
+  cantidad: number;
+}
+
 export interface ApiErrorResponse {
   timestamp?: string;
   status?: number;

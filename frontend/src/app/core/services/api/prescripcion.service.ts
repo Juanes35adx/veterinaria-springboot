@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Prescripcion } from '../../models/models';
+import { Prescripcion, PrescripcionRequest } from '../../models/models';
 
 @Injectable({
   providedIn: 'root'
@@ -22,7 +22,7 @@ export class PrescripcionService {
     return this.http.get<Prescripcion[]>(`${this.baseUrl}/consulta/${consultaId}`);
   }
 
-  crear(prescripcion: any): Observable<Prescripcion> {
+  crear(prescripcion: PrescripcionRequest): Observable<Prescripcion> {
     return this.http.post<Prescripcion>(this.baseUrl, prescripcion);
   }
 

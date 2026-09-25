@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Diagnostico } from '../../models/models';
+import { Diagnostico, DiagnosticoRequest } from '../../models/models';
 
 @Injectable({
   providedIn: 'root'
@@ -22,11 +22,11 @@ export class DiagnosticoService {
     return this.http.get<Diagnostico[]>(`${this.baseUrl}/consulta/${consultaId}`);
   }
 
-  crear(diag: any): Observable<Diagnostico> {
+  crear(diag: DiagnosticoRequest): Observable<Diagnostico> {
     return this.http.post<Diagnostico>(this.baseUrl, diag);
   }
 
-  actualizar(id: number, diag: any): Observable<Diagnostico> {
+  actualizar(id: number, diag: DiagnosticoRequest): Observable<Diagnostico> {
     return this.http.put<Diagnostico>(`${this.baseUrl}/${id}`, diag);
   }
 

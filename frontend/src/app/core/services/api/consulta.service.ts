@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ConsultaMedica } from '../../models/models';
+import { ConsultaMedica, ConsultaRequest } from '../../models/models';
 
 @Injectable({
   providedIn: 'root'
@@ -26,11 +26,11 @@ export class ConsultaService {
     return this.http.get<ConsultaMedica[]>(`${this.baseUrl}/veterinario/${vetId}`);
   }
 
-  crear(consulta: any): Observable<ConsultaMedica> {
+  crear(consulta: ConsultaRequest): Observable<ConsultaMedica> {
     return this.http.post<ConsultaMedica>(this.baseUrl, consulta);
   }
 
-  actualizar(id: number, consulta: any): Observable<ConsultaMedica> {
+  actualizar(id: number, consulta: ConsultaRequest): Observable<ConsultaMedica> {
     return this.http.put<ConsultaMedica>(`${this.baseUrl}/${id}`, consulta);
   }
 

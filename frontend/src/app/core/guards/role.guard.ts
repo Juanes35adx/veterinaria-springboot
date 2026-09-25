@@ -16,7 +16,7 @@ export const roleGuard: CanActivateFn = (route, state) => {
     return true;
   }
 
-  notificationService.error('Tu rol actual no tiene acceso a esta sección.', 'Acceso denegado');
+  notificationService.error('Tu rol actual no tiene acceso a esta secciÃ³n.', 'Acceso denegado');
   router.navigate(['/dashboard']);
   return false;
 };

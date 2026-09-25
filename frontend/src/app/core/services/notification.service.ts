@@ -26,7 +26,7 @@ export class NotificationService {
     }
   }
 
-  success(message: string, title: string = 'Éxito') {
+  success(message: string, title: string = 'Ã‰xito') {
     this.show('success', message, title);
   }
 
@@ -34,11 +34,11 @@ export class NotificationService {
     this.show('error', message, title, 5000);
   }
 
-  warning(message: string, title: string = 'Atención') {
+  warning(message: string, title: string = 'AtenciÃ³n') {
     this.show('warning', message, title);
   }
 
-  info(message: string, title: string = 'Información') {
+  info(message: string, title: string = 'InformaciÃ³n') {
     this.show('info', message, title);
   }
 

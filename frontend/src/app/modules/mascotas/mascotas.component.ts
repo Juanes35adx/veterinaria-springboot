@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -6,11 +6,12 @@ import { MascotaService } from '../../core/services/api/mascota.service';
 import { ClienteService } from '../../core/services/api/cliente.service';
 import { AuthService } from '../../core/services/auth.service';
 import { NotificationService } from '../../core/services/notification.service';
-import { Mascota, Cliente } from '../../core/models/models';
+import { Mascota, Cliente, MascotaRequest } from '../../core/models/models';
 import { ModalComponent } from '../../shared/components/modal.component';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog.component';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-mascotas',
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule, ModalComponent, ConfirmDialogComponent],
@@ -301,7 +302,7 @@ export class MascotasComponent implements OnInit {
   isConfirmOpen = false;
   mascotaAEliminar?: Mascota;
 
-  mascotaForm = this.fb.group({
+  mascotaForm = this.fb.nonNullable.group({
     nombre: ['', Validators.required],
     especie: ['Perro', Validators.required],
     raza: ['', Validators.required],
@@ -368,11 +369,11 @@ export class MascotasComponent implements OnInit {
   }
 
   guardarMascota() {
-    if (this.mascotaForm.invalid) return;
+    const formVal = this.mascotaForm.getRawValue();
+    if (this.mascotaForm.invalid || formVal.clienteId === null) return;
 
     this.isSaving = true;
-    const formVal = this.mascotaForm.value;
-    const payload: any = {
+    const payload: MascotaRequest = {
       nombre: formVal.nombre,
       especie: formVal.especie,
       raza: formVal.raza,

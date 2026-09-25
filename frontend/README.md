@@ -1,22 +1,22 @@
-# Protozoo ∑ Frontend Angular
+# Protozoo ¬∑ Frontend Angular
 
-Frontend moderno para el sistema de gestiÛn de clÌnica veterinaria y farmacia, conectado al backend `veterinaria-springboot` a travÈs de API REST y autenticaciÛn JWT con roles.
+Frontend moderno para el sistema de gesti√≥n de cl√≠nica veterinaria y farmacia, conectado al backend `veterinaria-springboot` a trav√©s de API REST y autenticaci√≥n JWT con roles.
 
 ---
 
-## ?? TecnologÌas
+## ?? Tecnolog√≠as
 
 * **Framework:** Angular 22 (Standalone Components & Signals)
 * **Lenguaje:** TypeScript 6
-* **Estilos:** Vanilla CSS con Sistema de DiseÒo ClÌnico Moderno
-* **AutenticaciÛn:** JWT con interceptor HTTP y Guards de roles
+* **Estilos:** Vanilla CSS con Sistema de Dise√±o Cl√≠nico Moderno
+* **Autenticaci√≥n:** JWT con interceptor HTTP y Guards de roles
 * **Servidor Dev:** Angular Dev Server con Proxy integrado hacia `http://localhost:8080`
 
 ---
 
 ## ?? Requisitos Previos
 
-1. **Backend en ejecuciÛn:**
+1. **Backend en ejecuci√≥n:**
    Tener corriendo el backend `veterinaria-springboot` en el puerto `8080`:
    ```cmd
    cd ..\veterinaria-springboot
@@ -26,7 +26,7 @@ Frontend moderno para el sistema de gestiÛn de clÌnica veterinaria y farmacia, c
 
 ---
 
-## ?? CÛmo Ejecutar el Frontend
+## ?? C√≥mo Ejecutar el Frontend
 
 1. Desde esta carpeta (`veterinaria-frontend`), inicia el servidor de desarrollo:
    ```cmd
@@ -41,46 +41,46 @@ Frontend moderno para el sistema de gestiÛn de clÌnica veterinaria y farmacia, c
 
 ## ?? Cuentas de Acceso (Demo)
 
-El formulario de Login cuenta con **botones de acceso r·pido de un clic** para rellenar autom·ticamente las credenciales:
+El formulario de Login cuenta con **botones de acceso r√°pido de un clic** para rellenar autom√°ticamente las credenciales:
 
-| Rol | Usuario | ContraseÒa | Permisos Principales |
+| Rol | Usuario | Contrase√±a | Permisos Principales |
 |---|---|---|---|
-| **ADMIN** | `admin` | `admin123` | Control total, gestiÛn de usuarios, veterinarios, farmacia, clÌnica y eliminaciÛn |
-| **VETERINARIO** | `veterinario` | `vet123` | ¡rea clÌnica (consultas, diagnÛsticos, emitir recetas con descuento de stock) |
-| **RECEPCIONISTA** | `recepcion` | `recep123` | ¡rea de mostrador (clientes, mascotas, cat·logo de farmacia) |
+| **ADMIN** | `admin` | `admin123` | Control total, gesti√≥n de usuarios, veterinarios, farmacia, cl√≠nica y eliminaci√≥n |
+| **VETERINARIO** | `veterinario` | `vet123` | √Årea cl√≠nica (consultas, diagn√≥sticos, emitir recetas con descuento de stock) |
+| **RECEPCIONISTA** | `recepcion` | `recep123` | √Årea de mostrador (clientes, mascotas, cat√°logo de farmacia) |
 
 ---
 
-## ? MÛdulos y Funcionalidades
+## ? M√≥dulos y Funcionalidades
 
 1. **Dashboard:**
-   - MÈtricas en tiempo real (total clientes, pacientes, consultas realizadas).
-   - Sem·foro y alertas autom·ticas de insumos farmacÈuticos con stock bajo o agotado.
-   - Listado de consultas recientes y accesos r·pidos.
+   - M√©tricas en tiempo real (total clientes, pacientes, consultas realizadas).
+   - Sem√°foro y alertas autom√°ticas de insumos farmac√©uticos con stock bajo o agotado.
+   - Listado de consultas recientes y accesos r√°pidos.
 
 2. **Clientes & Propietarios:**
-   - Registro, ediciÛn y b˙squeda reactiva de clientes.
+   - Registro, edici√≥n y b√∫squeda reactiva de clientes.
    - Explorador de mascotas asociadas a cada cliente.
-   - ProtecciÛn de integridad referencial.
+   - Protecci√≥n de integridad referencial.
 
 3. **Pacientes / Mascotas:**
-   - Registro con selecciÛn de cliente y filtros por especie (?? Perros, ?? Gatos, ?? Otros).
-   - Acceso directo al historial clÌnico del paciente.
+   - Registro con selecci√≥n de cliente y filtros por especie (?? Perros, ?? Gatos, ?? Otros).
+   - Acceso directo al historial cl√≠nico del paciente.
 
-4. **¡rea ClÌnica (Consultas, DiagnÛsticos y Recetas):**
-   - Registro de consultas mÈdicas con toma de signos vitales (peso, temperatura) y motivo.
-   - Expediente clÌnico interactivo:
-     - Registro y listado de diagnÛsticos por nivel de gravedad (Leve, Moderada, Grave, CrÌtica).
-     - EmisiÛn de recetas mÈdicas farmacÈuticas con **descuento autom·tico de stock** en base de datos.
-     - CancelaciÛn de recetas con **reintegro autom·tico de stock**.
+4. **√Årea Cl√≠nica (Consultas, Diagn√≥sticos y Recetas):**
+   - Registro de consultas m√©dicas con toma de signos vitales (peso, temperatura) y motivo.
+   - Expediente cl√≠nico interactivo:
+     - Registro y listado de diagn√≥sticos por nivel de gravedad (Leve, Moderada, Grave, Cr√≠tica).
+     - Emisi√≥n de recetas m√©dicas farmac√©uticas con **descuento autom√°tico de stock** en base de datos.
+     - Cancelaci√≥n de recetas con **reintegro autom√°tico de stock**.
 
 5. **Farmacia e Inventario:**
-   - Cat·logo de medicamentos con precios en pesos ($ COP).
-   - Sem·foro de stock (Disponible, Stock Bajo, Agotado).
-   - Formulario de alta y actualizaciÛn de insumos.
+   - Cat√°logo de medicamentos con precios en pesos ($ COP).
+   - Sem√°foro de stock (Disponible, Stock Bajo, Agotado).
+   - Formulario de alta y actualizaci√≥n de insumos.
 
-6. **Equipo MÈdico Veterinario:**
-   - Directorio de mÈdicos con especialidad, tarjeta profesional y datos de contacto.
+6. **Equipo M√©dico Veterinario:**
+   - Directorio de m√©dicos con especialidad, tarjeta profesional y datos de contacto.
 
-7. **AdministraciÛn de Usuarios:**
-   - MÛdulo exclusivo para administradores para dar de alta cuentas asignando roles (`ADMIN`, `VETERINARIO`, `RECEPCIONISTA`).
+7. **Administraci√≥n de Usuarios:**
+   - M√≥dulo exclusivo para administradores para dar de alta cuentas asignando roles (`ADMIN`, `VETERINARIO`, `RECEPCIONISTA`).

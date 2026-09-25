@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -11,11 +11,12 @@ import { PrescripcionService } from '../../core/services/api/prescripcion.servic
 import { MedicamentoService } from '../../core/services/api/medicamento.service';
 import { AuthService } from '../../core/services/auth.service';
 import { NotificationService } from '../../core/services/notification.service';
-import { ConsultaMedica, Mascota, Veterinario, Diagnostico, Prescripcion, Medicamento } from '../../core/models/models';
+import { ConsultaMedica, Mascota, Veterinario, Diagnostico, Prescripcion, Medicamento, ConsultaRequest, DiagnosticoRequest, PrescripcionRequest } from '../../core/models/models';
 import { ModalComponent } from '../../shared/components/modal.component';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog.component';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-consultas',
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, ModalComponent, ConfirmDialogComponent],
@@ -70,12 +71,12 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog.c
                     <span class="fecha-text">{{ formatFecha(c.fechaHora) }}</span>
                   </td>
                   <td>
-                    <strong>{{ c.mascota?.nombre || 'Mascota #' + c.mascota?.id }}</strong>
-                    <div class="text-xs text-muted">{{ c.mascota?.especie }} · {{ c.mascota?.raza }}</div>
+                    <strong>{{ c.mascota.nombre || 'Mascota #' + c.mascota.id }}</strong>
+                    <div class="text-xs text-muted">{{ c.mascota.especie }} · {{ c.mascota.raza }}</div>
                   </td>
                   <td>
-                    <strong>{{ c.veterinario?.nombre || 'Veterinario' }}</strong>
-                    <div class="text-xs text-muted">{{ c.veterinario?.especialidad }}</div>
+                    <strong>{{ c.veterinario.nombre || 'Veterinario' }}</strong>
+                    <div class="text-xs text-muted">{{ c.veterinario.especialidad }}</div>
                   </td>
                   <td>
                     <div class="motivo-cell">{{ c.motivo }}</div>
@@ -200,7 +201,7 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog.c
           <div class="exp-motivo-box">
             <strong>Motivo:</strong> {{ consultaActiva?.motivo }}
             @if (consultaActiva?.observaciones) {
-              <div class="exp-obs"><strong>Observaciones:</strong> {{ consultaActiva?.observaciones }}</div>
+              <div class="exp-obs"><strong>Observaciones:</strong> {{ consultaActiva.observaciones }}</div>
             }
           </div>
 
@@ -307,7 +308,7 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog.c
               @for (p of prescripcionesConsulta; track p.id) {
                 <div class="presc-card">
                   <div class="presc-info">
-                    <strong>{{ p.medicamento?.nombre }}</strong>
+                    <strong>{{ p.medicamento.nombre }}</strong>
                     <div class="text-xs text-muted">
                       Cantidad: <strong>{{ p.cantidad }}</strong> unidades · Dosis: {{ p.dosis }} · Duraci&oacute;n: {{ p.duracion }}
                     </div>
@@ -530,7 +531,7 @@ export class ConsultasComponent implements OnInit {
   isConfirmOpen = false;
   consultaAEliminar?: ConsultaMedica;
 
-  consultaForm = this.fb.group({
+  consultaForm = this.fb.nonNullable.group({
     mascotaId: [null as number | null, Validators.required],
     veterinarioId: [null as number | null, Validators.required],
     motivo: ['', Validators.required],
@@ -539,13 +540,13 @@ export class ConsultasComponent implements OnInit {
     observaciones: ['']
   });
 
-  diagForm = this.fb.group({
+  diagForm = this.fb.nonNullable.group({
     descripcion: ['', Validators.required],
     gravedad: ['Moderada', Validators.required],
     tratamiento: ['', Validators.required]
   });
 
-  prescForm = this.fb.group({
+  prescForm = this.fb.nonNullable.group({
     medicamentoId: [null as number | null, Validators.required],
     cantidad: [1, [Validators.required, Validators.min(1)]],
     dosis: ['', Validators.required],
@@ -645,11 +646,11 @@ export class ConsultasComponent implements OnInit {
   }
 
   guardarConsulta() {
-    if (this.consultaForm.invalid) return;
+    const formVal = this.consultaForm.getRawValue();
+    if (this.consultaForm.invalid || formVal.mascotaId === null || formVal.veterinarioId === null) return;
 
     this.isSaving = true;
-    const formVal = this.consultaForm.value;
-    const payload: any = {
+    const payload: ConsultaRequest = {
       mascota: { id: formVal.mascotaId },
       veterinario: { id: formVal.veterinarioId },
       motivo: formVal.motivo,
@@ -708,8 +709,8 @@ export class ConsultasComponent implements OnInit {
 
   guardarDiagnostico() {
     if (this.diagForm.invalid || !this.consultaActiva?.id) return;
-    const val = this.diagForm.value;
-    const payload = {
+    const val = this.diagForm.getRawValue();
+    const payload: DiagnosticoRequest = {
       consulta: { id: this.consultaActiva.id },
       descripcion: val.descripcion,
       gravedad: val.gravedad,
@@ -732,9 +733,9 @@ export class ConsultasComponent implements OnInit {
   }
 
   guardarPrescripcion() {
-    if (this.prescForm.invalid || !this.consultaActiva?.id) return;
-    const val = this.prescForm.value;
-    const payload = {
+    const val = this.prescForm.getRawValue();
+    if (this.prescForm.invalid || !this.consultaActiva?.id || val.medicamentoId === null) return;
+    const payload: PrescripcionRequest = {
       consulta: { id: this.consultaActiva.id },
       medicamento: { id: val.medicamentoId },
       cantidad: val.cantidad,

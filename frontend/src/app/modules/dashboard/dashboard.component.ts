@@ -1,7 +1,7 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
 import { ClienteService } from '../../core/services/api/cliente.service';
 import { MascotaService } from '../../core/services/api/mascota.service';
 import { ConsultaService } from '../../core/services/api/consulta.service';
@@ -10,6 +10,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { Medicamento, ConsultaMedica } from '../../core/models/models';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-dashboard',
   standalone: true,
   imports: [CommonModule, RouterModule],
@@ -195,12 +196,12 @@ import { Medicamento, ConsultaMedica } from '../../core/models/models';
                   <div class="consulta-feed-item">
                     <div class="feed-main">
                       <div class="feed-top">
-                        <strong class="feed-patient">{{ c.mascota?.nombre || 'Paciente' }}</strong>
+                        <strong class="feed-patient">{{ c.mascota.nombre || 'Paciente' }}</strong>
                         <span class="feed-date">{{ formatFecha(c.fechaHora) }}</span>
                       </div>
                       <div class="feed-motive">{{ c.motivo }}</div>
                       <div class="feed-sub">
-                        <span>Atendi&oacute;: {{ c.veterinario?.nombre || 'M&eacute;dico' }}</span>
+                        <span>Atendi&oacute;: {{ c.veterinario.nombre || 'M&eacute;dico' }}</span>
                         <span>· Peso: {{ c.pesoKg }} kg</span>
                       </div>
                     </div>
@@ -406,7 +407,8 @@ export class DashboardComponent implements OnInit {
     forkJoin({
       clientes: this.clienteService.listarTodos(),
       mascotas: this.mascotaService.listarTodas(),
-      consultas: this.consultaService.listarTodas(),
+      // RECEPCIONISTA no tiene acceso a /api/consultas (403): pedirlas haria fallar todo el forkJoin
+      consultas: this.authService.canManageClinic() ? this.consultaService.listarTodas() : of([] as ConsultaMedica[]),
       medicamentos: this.medicamentoService.listarTodos()
     }).subscribe({
       next: ({ clientes, mascotas, consultas, medicamentos }) => {

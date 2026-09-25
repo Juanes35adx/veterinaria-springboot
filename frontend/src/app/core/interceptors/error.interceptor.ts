@@ -23,14 +23,14 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       switch (error.status) {
         case 401:
           if (!req.url.includes('/api/auth/login')) {
-            notificationService.warning('Tu sesión ha expirado o no es válida. Por favor ingresa nuevamente.', 'Sesión requerida');
+            notificationService.warning('Tu sesiÃ³n ha expirado o no es vÃ¡lida. Por favor ingresa nuevamente.', 'SesiÃ³n requerida');
             authService.logout();
           } else {
-            notificationService.error(errorMessage || 'Usuario o contraseña incorrectos.', 'Acceso denegado');
+            notificationService.error(errorMessage || 'Usuario o contraseÃ±a incorrectos.', 'Acceso denegado');
           }
           break;
         case 403:
-          notificationService.error(errorMessage || 'No tienes permisos suficientes para realizar esta acción.', 'Acceso restringido');
+          notificationService.error(errorMessage || 'No tienes permisos suficientes para realizar esta acciÃ³n.', 'Acceso restringido');
           break;
         case 404:
           notificationService.warning(errorMessage || 'El recurso solicitado no fue encontrado.', 'No encontrado');
@@ -39,10 +39,10 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
           notificationService.error(errorMessage, 'Conflicto de Integridad');
           break;
         case 400:
-          notificationService.warning(errorMessage, 'Datos inválidos');
+          notificationService.warning(errorMessage, 'Datos invÃ¡lidos');
           break;
         case 0:
-          notificationService.error('No se pudo conectar con el servidor backend. Asegúrate de que Spring Boot esté en ejecución en el puerto 8080.', 'Error de Conexión');
+          notificationService.error('No se pudo conectar con el servidor backend. AsegÃºrate de que Spring Boot estÃ© en ejecuciÃ³n en el puerto 8080.', 'Error de ConexiÃ³n');
           break;
         default:
           notificationService.error(errorMessage, `Error (${error.status || 'Servidor'})`);
