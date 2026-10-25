@@ -2,12 +2,14 @@ spring:
   application:
     name: veterinaria
 
-  # --- Base de datos real: PostgreSQL local, administrada con pgAdmin 4 ---
+  # --- Base de datos real: PostgreSQL, se ejecuta aparte del backend ---
+  # Las credenciales no se versionan: DB_USERNAME y DB_PASSWORD deben
+  # definirse como variables de entorno antes de arrancar (ver README).
   datasource:
-    url: jdbc:postgresql://localhost:5432/VeterinariaS
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/VeterinariaS}
     driver-class-name: org.postgresql.Driver
-    username: postgres
-    password: ${DB_PASSWORD:1234}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
 
   # --- JPA / Hibernate ---
   jpa:
@@ -15,6 +17,10 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+
+# --- Documentacion OpenAPI: /v3/api-docs y Swagger UI en /swagger-ui.html ---
+springdoc:
+  default-produces-media-type: application/json
 
 # --- Seguridad: firma de los tokens JWT ---
 # La clave se lee de la variable de entorno JWT_SECRET; el valor por defecto
