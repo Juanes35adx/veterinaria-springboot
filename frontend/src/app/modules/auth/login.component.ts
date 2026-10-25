@@ -114,24 +114,6 @@ import { ToastComponent } from '../../shared/components/toast.component';
             }
           </button>
         </form>
-
-        <div class="demo-section">
-          <span class="demo-title">Accesos R&aacute;pidos de Prueba (Demo)</span>
-          <div class="demo-buttons">
-            <button type="button" class="btn-demo" (click)="fillDemo('admin', 'admin123')">
-              <span class="demo-role admin">ADMIN</span>
-              <span class="demo-user">admin</span>
-            </button>
-            <button type="button" class="btn-demo" (click)="fillDemo('veterinario', 'vet123')">
-              <span class="demo-role vet">VETERINARIO</span>
-              <span class="demo-user">veterinario</span>
-            </button>
-            <button type="button" class="btn-demo" (click)="fillDemo('recepcion', 'recep123')">
-              <span class="demo-role recep">RECEPCI&Oacute;N</span>
-              <span class="demo-user">recepcion</span>
-            </button>
-          </div>
-        </div>
       </div>
       <app-toast></app-toast>
     </div>
@@ -226,58 +208,6 @@ import { ToastComponent } from '../../shared/components/toast.component';
       font-size: 0.8125rem;
       margin-top: 0.5rem;
     }
-    .demo-section {
-      border-top: 1px solid var(--border-color);
-      padding-top: 1rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-    .demo-title {
-      font-size: 0.625rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--text-muted);
-      text-align: center;
-      font-family: var(--font-mono);
-    }
-    .demo-buttons {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 0.5rem;
-    }
-    .btn-demo {
-      background: var(--bg-subtle);
-      border: 1px solid var(--border-color);
-      padding: 0.5rem 0.25rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.25rem;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      border-radius: 0;
-    }
-    .btn-demo:hover {
-      background: var(--bg-surface);
-      border-color: var(--primary);
-    }
-    .demo-role {
-      font-size: 0.5625rem;
-      font-weight: 800;
-      padding: 0.125rem 0.375rem;
-      font-family: var(--font-mono);
-    }
-    .demo-role.admin { background: var(--danger-bg); color: var(--danger-text); border: 1px solid var(--danger-border); }
-    .demo-role.vet { background: var(--info-bg); color: var(--info-text); border: 1px solid var(--info-border); }
-    .demo-role.recep { background: var(--warning-bg); color: var(--warning-text); border: 1px solid var(--warning-border); }
-    .demo-user {
-      font-size: 0.6875rem;
-      color: var(--text-muted);
-      font-weight: 600;
-      font-family: var(--font-mono);
-    }
   `]
 })
 export class LoginComponent {
@@ -293,13 +223,6 @@ export class LoginComponent {
     username: ['', Validators.required],
     password: ['', Validators.required]
   });
-
-  fillDemo(username: string, pass: string) {
-    this.loginForm.patchValue({
-      username: username,
-      password: pass
-    });
-  }
 
   onSubmit() {
     if (this.loginForm.invalid) return;

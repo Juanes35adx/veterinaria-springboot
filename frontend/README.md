@@ -44,7 +44,7 @@ Si el backend corre en otra dirección o puerto, cambia el valor de `target` y r
 
 ## Cuentas de demostración
 
-El login tiene botones que rellenan estas credenciales (las crea el backend al arrancar):
+El backend crea estas cuentas al arrancar por primera vez:
 
 | Rol | Usuario | Contraseña | Acceso |
 |---|---|---|---|
