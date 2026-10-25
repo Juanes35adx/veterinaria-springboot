@@ -74,7 +74,7 @@ Los componentes no usan `HttpClient`: siempre pasan por un servicio de `core/ser
 
 1. `login.component` llama a `AuthService.login()`, que hace `POST /api/auth/login`.
 2. La respuesta (token, usuario y rol) se guarda en `localStorage`, así la sesión sobrevive a recargar la página.
-3. `auth.interceptor` agrega `Authorization: Bearer <token>` a toda petición que no sea el login.
+3. `auth.interceptor` agrega la cabecera `Authorization: Bearer` seguida del token a toda petición que no sea el login.
 4. `error.interceptor` muestra un aviso según el código: 401 (credenciales o sesión inválidas; si la sesión expiró, cierra sesión), 403, 404, 409 o sin conexión.
 5. `logout()` borra el token y redirige a `/login`.
 

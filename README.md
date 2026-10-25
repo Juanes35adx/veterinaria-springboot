@@ -49,29 +49,30 @@ Las credenciales de la base de datos no están en el repositorio: el backend las
 
 | Variable | Valor por defecto | Descripción |
 |---|---|---|
-| `DB_USERNAME` | _(ninguno, obligatoria)_ | Usuario de PostgreSQL, por ejemplo `postgres` |
-| `DB_PASSWORD` | _(ninguno, obligatoria)_ | Contraseña de ese usuario |
+| `DB_USERNAME` | Sin valor por defecto (obligatoria) | Usuario de PostgreSQL, por ejemplo `postgres` |
+| `DB_PASSWORD` | Sin valor por defecto (obligatoria) | Contraseña de ese usuario |
 | `DB_URL` | `jdbc:postgresql://localhost:5432/VeterinariaS` | URL JDBC de la base |
 | `JWT_SECRET` | clave de desarrollo incluida en `application.yaml` | Clave para firmar los tokens; en un despliegue real se define una propia |
 
-Se definen en la misma terminal desde la que se levanta el backend:
+Se definen en la misma terminal desde la que se levanta el backend. La contraseña se pide por teclado, así no queda escrita en el historial de la terminal:
 
 ```powershell
 # PowerShell
 $env:DB_USERNAME = "postgres"
-$env:DB_PASSWORD = "<tu-contraseña>"
+$env:DB_PASSWORD = Read-Host "Contraseña de PostgreSQL"
 ```
 
 ```cmd
 :: cmd
 set DB_USERNAME=postgres
-set DB_PASSWORD=<tu-contraseña>
+set /p DB_PASSWORD=Contraseña de PostgreSQL: 
 ```
 
 ```bash
 # bash / macOS / Linux
 export DB_USERNAME=postgres
-export DB_PASSWORD='<tu-contraseña>'
+read -s -p "Contraseña de PostgreSQL: " DB_PASSWORD; echo
+export DB_PASSWORD
 ```
 
 ## 3. Levantar el backend
@@ -188,7 +189,7 @@ Dentro del backend cada petición recorre `JwtAuthenticationFilter → Controlle
 | Repositorios | `repository` | Acceso a datos con Spring Data JPA |
 | Modelo | `model` | Entidades JPA |
 
-En el frontend, `AuthService` guarda la sesión en `localStorage` (sobrevive a recargar la página), `authInterceptor` agrega `Authorization: Bearer <token>` a cada petición y `errorInterceptor` avisa al usuario y cierra la sesión cuando la API responde 401. Ver [`frontend/README.md`](frontend/README.md).
+En el frontend, `AuthService` guarda la sesión en `localStorage` (sobrevive a recargar la página), `authInterceptor` agrega a cada petición la cabecera `Authorization: Bearer` seguida del token y `errorInterceptor` avisa al usuario y cierra la sesión cuando la API responde 401. Ver [`frontend/README.md`](frontend/README.md).
 
 ### Modelo de datos
 
@@ -225,12 +226,9 @@ erDiagram
 
 ### Probar la API desde la terminal
 
-```bash
-curl -X POST http://localhost:8080/api/auth/login -H "Content-Type: application/json" -d "{\"username\":\"admin\",\"password\":\"admin123\"}"
-```
-
-La respuesta trae un `token`, que se envía en las demás peticiones:
+En bash, con el backend levantado, este bloque inicia sesión, guarda el token y lo usa para listar los clientes:
 
 ```bash
-curl http://localhost:8080/api/clientes -H "Authorization: Bearer <token>"
+TOKEN=$(curl -s -X POST http://localhost:8080/api/auth/login -H "Content-Type: application/json" -d '{"username":"admin","password":"admin123"}' | sed -E 's/.*"token":"([^"]+)".*/\1/')
+curl http://localhost:8080/api/clientes -H "Authorization: Bearer $TOKEN"
 ```
