@@ -1,82 +1,196 @@
-# Veterinaria API
+# ProtoZOO · Sistema de gestión veterinaria
 
-API REST para la gestión de clientes, sus mascotas, veterinarios, medicamentos en farmacia, consultas médicas, diagnósticos y prescripciones con control de inventario, construida con Spring Boot como proyecto del curso de Plataformas.
+ProtoZOO es un sistema web para una clínica veterinaria con farmacia. Lleva el registro de los clientes y sus mascotas, el personal médico, el inventario de medicamentos y la historia clínica de cada mascota: consultas con signos vitales, diagnósticos y recetas. Al emitir una receta el sistema descuenta el stock del medicamento, y al cancelarla lo devuelve. El acceso se controla con JWT y tres roles (administrador, veterinario y recepcionista). Está formado por una API REST en Spring Boot y una aplicación de una sola página en Angular, y se construyó como proyecto del curso de Plataformas de la UPB.
 
-## Stack
+## Integrantes
 
-| Componente | Version |
+- Juan Esteban Correa Castro
+- Juan Pablo González Zabala
+
+## Tecnologías
+
+| Componente | Tecnología | Versión |
+|---|---|---|
+| Backend | Java (JDK) | 25 |
+| | Spring Boot (Web MVC, Data JPA, Security) | 4.1.0 |
+| | JJWT (tokens JWT) | 0.12.6 |
+| | springdoc-openapi (especificación y Swagger UI) | 3.2.0 |
+| | Maven (incluido como wrapper `mvnw`) | 3.9.16 |
+| Base de datos | PostgreSQL | 18 |
+| Frontend | Angular (componentes standalone) | 22.2 |
+| | TypeScript | 6.0 |
+| Pruebas | JUnit 5 + Mockito, H2 en memoria (solo pruebas), JaCoCo | 0.8.13 (JaCoCo) |
+| | Vitest + jsdom | 4.1 / 30.1 |
+
+## Requisitos previos
+
+| Herramienta | Versión |
 |---|---|
-| Java | 25 |
-| Spring Boot | 4.1.0 |
-| Build | Maven (wrapper incluido) |
-| Base de datos | PostgreSQL 18 (local, administrada con pgAdmin 4) |
-| ORM | Spring Data JPA / Hibernate |
-| Tests | H2 en memoria (aislado de la base real) |
+| JDK | 25 |
+| Node.js | 24.15 o superior (también 22.22.3+ o 26+) |
+| npm | 11 (viene con Node.js) |
+| PostgreSQL | 18 (probado; sirve 15 o superior) |
 
----
+Maven no hace falta instalarlo: el repositorio trae el wrapper (`mvnw` / `mvnw.cmd`).
 
-## Arquitectura de capas
+## 1. Preparar la base de datos
 
-```
-co.edu.upb.veterinaria
-├── VeterinariaApplication.java          @SpringBootApplication
-├── model
-│   ├── Cliente.java                     @Entity (El dueño de la mascota)
-│   ├── Mascota.java                     @Entity (@ManyToOne hacia Cliente)
-│   ├── Veterinario.java                 @Entity (Personal médico)
-│   ├── Medicamento.java                 @Entity (Almacén / Farmacia con stock)
-│   ├── ConsultaMedica.java              @Entity (@ManyToOne hacia Mascota y Veterinario)
-│   ├── Diagnostico.java                 @Entity (@ManyToOne hacia ConsultaMedica)
-│   ├── Prescripcion.java                @Entity (@ManyToOne hacia ConsultaMedica y Medicamento)
-│   ├── Usuario.java                     @Entity (login: username + password cifrada + rol)
-│   └── Rol.java                         enum (ADMIN, VETERINARIO, RECEPCIONISTA)
-├── repository
-│   ├── ClienteRepository.java            @Repository
-│   ├── MascotaRepository.java            @Repository
-│   ├── VeterinarioRepository.java        @Repository
-│   ├── MedicamentoRepository.java        @Repository
-│   ├── ConsultaMedicaRepository.java     @Repository
-│   ├── DiagnosticoRepository.java        @Repository
-│   ├── PrescripcionRepository.java       @Repository
-│   └── UsuarioRepository.java            @Repository
-├── service
-│   ├── ClienteService.java               @Service (validaciones)
-│   ├── MascotaService.java               @Service (validaciones + resuelve Cliente)
-│   ├── VeterinarioService.java           @Service (validaciones)
-│   ├── MedicamentoService.java           @Service (validaciones)
-│   ├── ConsultaMedicaService.java        @Service (validaciones + resuelve Mascota y Veterinario)
-│   ├── DiagnosticoService.java           @Service (validaciones + resuelve ConsultaMedica)
-│   ├── PrescripcionService.java          @Service (deduce stock de Medicamento en PostgreSQL)
-│   ├── UsuarioService.java               @Service (registro, cifrado BCrypt, login)
-│   └── CredencialesInvalidasException.java
-├── controller
-│   ├── ClienteController.java            @RestController (/api/clientes)
-│   ├── MascotaController.java            @RestController (/api/mascotas)
-│   ├── VeterinarioController.java        @RestController (/api/veterinarios)
-│   ├── MedicamentoController.java        @RestController (/api/medicamentos)
-│   ├── ConsultaMedicaController.java     @RestController (/api/consultas)
-│   ├── DiagnosticoController.java        @RestController (/api/diagnosticos)
-│   ├── PrescripcionController.java       @RestController (/api/prescripciones)
-│   ├── AuthController.java               @RestController (/api/auth/login)
-│   ├── UsuarioController.java            @RestController (/api/usuarios, solo ADMIN)
-│   ├── dto/LoginRequest.java, LoginResponse.java
-│   └── ManejadorGlobalDeErrores.java     @RestControllerAdvice (400/401/403/404)
-├── security
-│   ├── JwtService.java                   Genera y valida los tokens JWT
-│   ├── JwtAuthenticationFilter.java      Filtro: lee el header y autentica la petición
-│   ├── SecurityConfig.java               Reglas: que rol entra a que ruta
-│   ├── UserDetailsServiceImpl.java       Conecta Spring Security con la tabla Usuario
-│   ├── ManejadorNoAutenticado.java       401 cuando no hay token valido
-│   └── UsuariosIniciales.java            Crea un usuario de cada rol al arrancar
-└── exception
-    └── RecursoNoEncontradoException.java
+Crear una base de datos vacía llamada `VeterinariaS`, desde pgAdmin o con `psql`:
+
+```sql
+CREATE DATABASE "VeterinariaS";
 ```
 
-Flujo de una petición: `Filtro JWT -> Controller -> Service -> Repository -> PostgreSQL`.
+Las tablas no se crean a mano: Hibernate las genera al primer arranque (`ddl-auto: update`).
 
----
+## 2. Variables de entorno
 
-## Modelo Entidad-Relación (ER)
+Las credenciales de la base de datos no están en el repositorio: el backend las lee de variables de entorno.
+
+| Variable | Valor por defecto | Descripción |
+|---|---|---|
+| `DB_USERNAME` | _(ninguno, obligatoria)_ | Usuario de PostgreSQL, por ejemplo `postgres` |
+| `DB_PASSWORD` | _(ninguno, obligatoria)_ | Contraseña de ese usuario |
+| `DB_URL` | `jdbc:postgresql://localhost:5432/VeterinariaS` | URL JDBC de la base |
+| `JWT_SECRET` | clave de desarrollo incluida en `application.yaml` | Clave para firmar los tokens; en un despliegue real se define una propia |
+
+Se definen en la misma terminal desde la que se levanta el backend:
+
+```powershell
+# PowerShell
+$env:DB_USERNAME = "postgres"
+$env:DB_PASSWORD = "<tu-contraseña>"
+```
+
+```cmd
+:: cmd
+set DB_USERNAME=postgres
+set DB_PASSWORD=<tu-contraseña>
+```
+
+```bash
+# bash / macOS / Linux
+export DB_USERNAME=postgres
+export DB_PASSWORD='<tu-contraseña>'
+```
+
+## 3. Levantar el backend
+
+Desde la raíz del repositorio, en la terminal donde se definieron las variables:
+
+```bash
+./mvnw spring-boot:run
+```
+
+En Windows (cmd o PowerShell):
+
+```cmd
+.\mvnw.cmd spring-boot:run
+```
+
+La API queda en **http://localhost:8080** (por ejemplo, `POST http://localhost:8080/api/auth/login`).
+
+## 4. Levantar el frontend
+
+En otra terminal, desde la carpeta `frontend/`:
+
+```bash
+cd frontend
+npm install
+npm start
+```
+
+El frontend queda en **http://localhost:4200**.
+
+El navegador llama a la API en `http://localhost:4200/api/...`, y el servidor de desarrollo de Angular reenvía esas peticiones a `http://localhost:8080` según [`frontend/proxy.conf.json`](frontend/proxy.conf.json). Como el navegador solo habla con un origen, no hace falta CORS.
+
+## URL y puertos
+
+| Componente | URL |
+|---|---|
+| Frontend (SPA) | http://localhost:4200 |
+| API REST | http://localhost:8080/api |
+| Swagger UI | http://localhost:8080/swagger-ui.html |
+| Especificación en vivo | http://localhost:8080/v3/api-docs |
+| PostgreSQL | localhost:5432, base `VeterinariaS` |
+
+## Usuarios de prueba
+
+Se crean solos al arrancar el backend por primera vez:
+
+| Rol | Usuario | Contraseña | Acceso |
+|---|---|---|---|
+| ADMIN | `admin` | `admin123` | Todo, incluido usuarios, veterinarios y eliminar registros |
+| VETERINARIO | `veterinario` | `vet123` | Área clínica: consultas, diagnósticos y recetas; farmacia |
+| RECEPCIONISTA | `recepcion` | `recep123` | Clientes y mascotas; consulta de veterinarios y farmacia |
+
+## Datos de prueba
+
+Al primer arranque, con la base vacía, el backend también crea:
+
+| Entidad | Datos |
+|---|---|
+| Clientes | Camila Restrepo, Juan Pablo Gomez |
+| Mascotas | Firulais (perro) y Michi (gato) de Camila; Rocky (perro) de Juan Pablo |
+| Veterinarios | Dr. Carlos Gomez (TP-88492), Dra. Maria Fernandez (TP-99214) |
+| Medicamentos | Amoxicilina 500mg (stock 45), Meloxicam 1mg (stock 8, por debajo del mínimo), Antiparasitario Canino (stock 20) |
+| Consulta | Firulais atendido por el Dr. Carlos Gomez, con el diagnóstico "Traqueobronquitis infecciosa" |
+
+Con estos datos se recorren los flujos principales sin crear nada antes:
+
+1. **Sesión:** entrar con `admin` / `admin123`; con una contraseña errónea la API responde 401 y la aplicación lo informa.
+2. **CRUD de clientes:** crear, listar, editar y eliminar un cliente desde la pantalla de Clientes.
+3. **Receta con descuento de inventario:** abrir la consulta de Firulais y emitir una receta de Amoxicilina por 14 unidades (lo puede hacer `veterinario` o `admin`). El stock baja de 45 a 31. Como `admin`, eliminar esa receta devuelve el stock a 45.
+4. **Permisos por rol:** como `recepcion`, el área clínica no aparece y la API responde 403 si se intenta por fuera de la interfaz.
+
+## Pruebas
+
+**Backend** (desde la raíz; usa H2 en memoria, no necesita PostgreSQL ni las variables de entorno):
+
+```bash
+./mvnw verify
+```
+
+Corre las pruebas unitarias y de integración, y JaCoCo hace fallar el comando si la cobertura de líneas de la capa de servicios (`co.edu.upb.veterinaria.service`) queda por debajo del 80 %. El reporte queda en `target/site/jacoco/index.html`.
+
+**Frontend** (desde `frontend/`; corre con Vitest sobre jsdom, sin navegador y sin modo watch):
+
+```bash
+cd frontend
+npm test
+```
+
+Cubre el servicio de autenticación, el interceptor que adjunta el token, el interceptor de errores y el servicio de clientes del CRUD.
+
+## Documentación de la API (OpenAPI)
+
+La especificación está en [`openapi.yaml`](openapi.yaml), en la raíz del repositorio (OpenAPI 3.1.0). Documenta los 44 endpoints con sus parámetros, cuerpos, códigos de respuesta (incluidos 400, 401, 403, 404 y 409) y el esquema de autenticación Bearer JWT.
+
+El archivo se genera a partir de la API real. Para regenerarlo después de cambiar un controlador:
+
+```bash
+./mvnw test -Dtest=ExportarOpenApiTest -Dopenapi.exportar=true -Djacoco.skip=true
+```
+
+## Arquitectura
+
+```
+Navegador ──HTTP──▶ Angular (dev server :4200) ──proxy /api──▶ Spring Boot (:8080) ──JDBC──▶ PostgreSQL (:5432)
+```
+
+Dentro del backend cada petición recorre `JwtAuthenticationFilter → Controller → Service → Repository → PostgreSQL`:
+
+| Capa | Paquete | Responsabilidad |
+|---|---|---|
+| Seguridad | `security` | `JwtService` emite y valida los tokens; `JwtAuthenticationFilter` los lee de cada petición; `SecurityConfig` define qué rol entra a qué ruta |
+| Controladores | `controller` | Endpoints REST y traducción de errores a códigos HTTP (`ManejadorGlobalDeErrores`) |
+| Servicios | `service` | Reglas de negocio: validaciones, control de stock al recetar |
+| Repositorios | `repository` | Acceso a datos con Spring Data JPA |
+| Modelo | `model` | Entidades JPA |
+
+En el frontend, `AuthService` guarda la sesión en `localStorage` (sobrevive a recargar la página), `authInterceptor` agrega `Authorization: Bearer <token>` a cada petición y `errorInterceptor` avisa al usuario y cierra la sesión cuando la API responde 401. Ver [`frontend/README.md`](frontend/README.md).
+
+### Modelo de datos
 
 ```mermaid
 erDiagram
@@ -88,224 +202,35 @@ erDiagram
     MEDICAMENTO ||--o{ PRESCRIPCION : "es recetado en"
 ```
 
----
+`USUARIO` (username, contraseña cifrada con BCrypt y rol) es independiente y solo se usa para iniciar sesión.
 
-## Autenticación y autorización por rol
-
-La API usa **JWT** (JSON Web Token). Todas las rutas exigen un token válido en la
-cabecera `Authorization: Bearer <token>`, excepto `/api/auth/login`.
-
-### Cómo iniciar sesión
-
-```bash
-curl -i -X POST http://localhost:8080/api/auth/login -H "Content-Type: application/json" -d "{\"username\":\"admin\",\"password\":\"admin123\"}"
-```
-
-Respuesta:
-
-```json
-{ "token": "eyJhbGc...", "username": "admin", "rol": "ADMIN", "nombreCompleto": "Administrador del sistema", "expiraEnMs": 28800000 }
-```
-
-Ese `token` se usa en el resto de peticiones:
-
-```bash
-curl -i http://localhost:8080/api/clientes -H "Authorization: Bearer eyJhbGc..."
-```
-
-### Usuarios de prueba (se crean solos al arrancar la app)
-
-| Username | Password | Rol |
-|---|---|---|
-| `admin` | `admin123` | ADMIN |
-| `veterinario` | `vet123` | VETERINARIO |
-| `recepcion` | `recep123` | RECEPCIONISTA |
-
-### Qué puede hacer cada rol
+### Permisos por rol
 
 | Ruta | ADMIN | VETERINARIO | RECEPCIONISTA |
 |---|---|---|---|
-| `/api/usuarios/**` | Todo | ❌ | ❌ |
-| `DELETE` en cualquier ruta | Sí | ❌ | ❌ |
-| `/api/veterinarios/**` (crear/editar) | Sí | ❌ | ❌ |
-| `/api/veterinarios` (solo consultar) | Sí | Sí | Sí |
-| `/api/consultas/**`, `/api/diagnosticos/**`, `/api/prescripciones/**` | Sí | Sí | ❌ |
-| `/api/medicamentos` (solo consultar) | Sí | Sí | Sí |
-| `/api/medicamentos/**` (crear/editar) | Sí | Sí | ❌ |
-| `/api/clientes/**`, `/api/mascotas/**` | Sí | Sí | Sí |
-
-### Códigos de respuesta relacionados con seguridad
+| `/api/usuarios/**` | Sí | No | No |
+| `DELETE` en cualquier ruta | Sí | No | No |
+| `GET /api/veterinarios/**` | Sí | Sí | Sí |
+| Crear o editar veterinarios | Sí | No | No |
+| `/api/consultas/**`, `/api/diagnosticos/**`, `/api/prescripciones/**` | Sí | Sí | No |
+| `GET /api/medicamentos/**` | Sí | Sí | Sí |
+| Crear o editar medicamentos | Sí | Sí | No |
+| `/api/clientes/**`, `/api/mascotas/**` (sin eliminar) | Sí | Sí | Sí |
 
 | Situación | Código |
 |---|---|
-| Sin token, o token inválido/expirado | `401 Unauthorized` |
-| Token válido pero el rol no tiene permiso sobre esa ruta | `403 Forbidden` |
-| Login con usuario o contraseña incorrectos | `401 Unauthorized` |
+| Sin token, o token inválido o expirado | `401 Unauthorized` |
+| Usuario o contraseña incorrectos en el login | `401 Unauthorized` |
+| Token válido pero el rol no tiene permiso | `403 Forbidden` |
 
-Las contraseñas se guardan siempre cifradas con **BCrypt** (nunca en texto
-plano), y el campo `password` de `Usuario` está marcado con `@JsonIgnore`
-para que jamás salga en una respuesta JSON, ni siquiera por accidente.
-
----
-
-## Endpoints
-
-### Clientes — `/api/clientes`
-
-| Método | Ruta | Descripción | Respuesta |
-|---|---|---|---|
-| `POST` | `/api/clientes` | Crear cliente | `201 CREATED` |
-| `GET` | `/api/clientes` | Listar todos | `200 OK` |
-| `GET` | `/api/clientes/{id}` | Obtener uno | `200 OK` / `404` |
-| `PUT` | `/api/clientes/{id}` | Actualizar | `200 OK` / `404` |
-| `DELETE` | `/api/clientes/{id}` | Eliminar | `204 NO CONTENT` / `404` |
-
-### Mascotas — `/api/mascotas`
-
-| Método | Ruta | Descripción | Respuesta |
-|---|---|---|---|
-| `POST` | `/api/mascotas` | Crear mascota | `201 CREATED` / `404` si el cliente no existe |
-| `GET` | `/api/mascotas` | Listar todas | `200 OK` |
-| `GET` | `/api/mascotas/{id}` | Obtener una | `200 OK` / `404` |
-| `GET` | `/api/mascotas/cliente/{clienteId}` | Mascotas de un dueño | `200 OK` / `404` |
-| `PUT` | `/api/mascotas/{id}` | Actualizar | `200 OK` / `404` |
-| `DELETE` | `/api/mascotas/{id}` | Eliminar | `204 NO CONTENT` / `404` |
-
-### Veterinarios — `/api/veterinarios`
-
-| Método | Ruta | Descripción | Respuesta |
-|---|---|---|---|
-| `POST` | `/api/veterinarios` | Registrar médico | `201 CREATED` |
-| `GET` | `/api/veterinarios` | Listar todos | `200 OK` |
-| `GET` | `/api/veterinarios/{id}` | Obtener uno | `200 OK` / `404` |
-| `PUT` | `/api/veterinarios/{id}` | Actualizar | `200 OK` / `404` |
-| `DELETE` | `/api/veterinarios/{id}` | Eliminar | `204 NO CONTENT` / `404` |
-
-### Medicamentos — `/api/medicamentos`
-
-| Método | Ruta | Descripción | Respuesta |
-|---|---|---|---|
-| `POST` | `/api/medicamentos` | Registrar producto | `201 CREATED` |
-| `GET` | `/api/medicamentos` | Listar inventario | `200 OK` |
-| `GET` | `/api/medicamentos/{id}` | Obtener uno | `200 OK` / `404` |
-| `PUT` | `/api/medicamentos/{id}` | Actualizar stock/precio | `200 OK` / `404` |
-| `DELETE` | `/api/medicamentos/{id}` | Eliminar | `204 NO CONTENT` / `404` |
-
-### Consultas Médicas — `/api/consultas`
-
-| Método | Ruta | Descripción | Respuesta |
-|---|---|---|---|
-| `POST` | `/api/consultas` | Crear consulta médica | `201 CREATED` / `404` si mascota o vet no existe |
-| `GET` | `/api/consultas` | Listar todas | `200 OK` |
-| `GET` | `/api/consultas/{id}` | Obtener una | `200 OK` / `404` |
-| `GET` | `/api/consultas/mascota/{mascotaId}` | Historial clínico de una mascota | `200 OK` / `404` |
-| `GET` | `/api/consultas/veterinario/{vetId}` | Consultas de un médico | `200 OK` / `404` |
-| `PUT` | `/api/consultas/{id}` | Actualizar | `200 OK` / `404` |
-| `DELETE` | `/api/consultas/{id}` | Eliminar | `204 NO CONTENT` / `404` |
-
-### Diagnósticos — `/api/diagnosticos`
-
-| Método | Ruta | Descripción | Respuesta |
-|---|---|---|---|
-| `POST` | `/api/diagnosticos` | Asignar diagnóstico | `201 CREATED` / `404` si consulta no existe |
-| `GET` | `/api/diagnosticos` | Listar todos | `200 OK` |
-| `GET` | `/api/diagnosticos/{id}` | Obtener uno | `200 OK` / `404` |
-| `GET` | `/api/diagnosticos/consulta/{consultaId}` | Diagnósticos de una consulta | `200 OK` / `404` |
-| `PUT` | `/api/diagnosticos/{id}` | Actualizar | `200 OK` / `404` |
-| `DELETE` | `/api/diagnosticos/{id}` | Eliminar | `204 NO CONTENT` / `404` |
-
-### Prescripciones / Recetas — `/api/prescripciones`
-
-| Método | Ruta | Descripción | Respuesta |
-|---|---|---|---|
-| `POST` | `/api/prescripciones` | Emitir receta (descuenta stock) | `201 CREATED` / `400` sin stock / `404` |
-| `GET` | `/api/prescripciones` | Listar todas | `200 OK` |
-| `GET` | `/api/prescripciones/{id}` | Obtener una | `200 OK` / `404` |
-| `GET` | `/api/prescripciones/consulta/{consultaId}` | Recetas de una consulta | `200 OK` / `404` |
-| `DELETE` | `/api/prescripciones/{id}` | Eliminar receta (devuelve stock) | `204 NO CONTENT` / `404` |
-
----
-
-## Ejemplos con cURL / Bruno / Postman
-
-1. Crear un cliente:
-```bash
-curl -i -X POST http://localhost:8080/api/clientes -H "Content-Type: application/json" -d "{\"nombre\":\"Camila Restrepo\",\"telefono\":\"3001234567\",\"email\":\"camila@mail.com\"}"
-```
-
-2. Crear una mascota asociada al cliente con id `1`:
-```bash
-curl -i -X POST http://localhost:8080/api/mascotas -H "Content-Type: application/json" -d "{\"nombre\":\"Firulais\",\"especie\":\"Perro\",\"raza\":\"Labrador\",\"edad\":3,\"cliente\":{\"id\":1}}"
-```
-
-3. Registrar un veterinario:
-```bash
-curl -i -X POST http://localhost:8080/api/veterinarios -H "Content-Type: application/json" -d "{\"nombre\":\"Dr. Carlos Gomez\",\"tarjetaProfesional\":\"TP-88492\",\"especialidad\":\"General\",\"telefono\":\"3109876543\",\"email\":\"carlos@vet.com\"}"
-```
-
-4. Registrar un medicamento con stock de `50`:
-```bash
-curl -i -X POST http://localhost:8080/api/medicamentos -H "Content-Type: application/json" -d "{\"nombre\":\"Amoxicilina 500mg\",\"principioActivo\":\"Amoxicilina\",\"presentacion\":\"Caja x 20\",\"precio\":25000.0,\"stock\":50,\"stockMinimo\":10}"
-```
-
-5. Registrar una consulta médica para la mascota `1` atendida por el veterinario `1`:
-```bash
-curl -i -X POST http://localhost:8080/api/consultas -H "Content-Type: application/json" -d "{\"mascota\":{\"id\":1},\"veterinario\":{\"id\":1},\"motivo\":\"Tos y letargo\",\"pesoKg\":14.2,\"temperaturaC\":39.1,\"observaciones\":\"Congestión\"}"
-```
-
-6. Registrar un diagnóstico para la consulta `1`:
-```bash
-curl -i -X POST http://localhost:8080/api/diagnosticos -H "Content-Type: application/json" -d "{\"consulta\":{\"id\":1},\"descripcion\":\"Tos de las perreras\",\"gravedad\":\"Leve\",\"tratamiento\":\"Antibiótico\"}"
-```
-
-7. Emitir receta recetando 14 unidades (descuenta automáticamente el stock en Postgres de 50 a 36):
-```bash
-curl -i -X POST http://localhost:8080/api/prescripciones -H "Content-Type: application/json" -d "{\"consulta\":{\"id\":1},\"medicamento\":{\"id\":1},\"dosis\":\"1 tab c/12h\",\"duracion\":\"7 días\",\"cantidad\":14}"
-```
-
----
-
-## Base de datos
-
-La app se conecta a PostgreSQL local (`application.yaml`):
-
-| Campo | Valor |
-|---|---|
-| Host | `localhost:5432` |
-| Base de datos | `VeterinariaS` |
-| Usuario | `postgres` |
-| Contraseña | `1234` |
-
-### Preparación antes de correr el proyecto (una sola vez)
-
-1. Instalar **PostgreSQL** (probado con la versión 18) y **pgAdmin 4**.
-2. Asegurarse de que el rol `postgres` tenga la contraseña **`1234`**.
-3. Crear una base de datos llamada exactamente **`VeterinariaS`**.
-
-Las **tablas** no hay que crearlas a mano: Hibernate las genera solas la primera vez que la app arranca (`ddl-auto: update`).
-
-Los tests **no** usan esta base — corren contra H2 en memoria (`src/test/resources/application.yaml`), así que `mvnw test` no requiere tener Postgres corriendo ni deja datos de prueba en `VeterinariaS`.
-
----
-
-## Cómo ejecutar
-
-Requiere JDK 25 y PostgreSQL corriendo localmente con la base `VeterinariaS` creada.
+### Probar la API desde la terminal
 
 ```bash
-./mvnw spring-boot:run
+curl -X POST http://localhost:8080/api/auth/login -H "Content-Type: application/json" -d "{\"username\":\"admin\",\"password\":\"admin123\"}"
 ```
 
-En Windows:
+La respuesta trae un `token`, que se envía en las demás peticiones:
 
-```cmd
-mvnw.cmd spring-boot:run
-```
-
-La aplicación queda en `http://localhost:8080`.
-
-## Tests
-
-```cmd
-mvnw.cmd test
+```bash
+curl http://localhost:8080/api/clientes -H "Authorization: Bearer <token>"
 ```
