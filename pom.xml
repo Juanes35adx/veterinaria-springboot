@@ -64,6 +64,13 @@
 			<scope>runtime</scope>
 		</dependency>
 
+		<!-- Documentacion OpenAPI generada a partir de los controllers, con Swagger UI -->
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>3.2.0</version>
+		</dependency>
+
 		<!-- Base de datos real: PostgreSQL local (gestionada con pgAdmin 4) -->
 		<dependency>
 			<groupId>org.postgresql</groupId>

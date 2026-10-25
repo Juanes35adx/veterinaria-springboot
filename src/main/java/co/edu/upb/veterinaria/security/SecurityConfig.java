@@ -58,6 +58,10 @@ public class SecurityConfig {
 				// codigo de estado original (p. ej. 403) por un 401 enganoso.
 				.requestMatchers("/error").permitAll()
 
+				// Documentacion de la API (especificacion OpenAPI y Swagger UI).
+				.requestMatchers("/v3/api-docs", "/v3/api-docs.yaml", "/v3/api-docs/**",
+						"/swagger-ui/**", "/swagger-ui.html").permitAll()
+
 				// --- Gestion de usuarios: solo ADMIN ---
 				.requestMatchers("/api/usuarios/**").hasRole("ADMIN")
 

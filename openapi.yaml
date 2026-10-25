@@ -1,0 +1,1868 @@
+openapi: 3.1.0
+info:
+  title: ProtoZOO - API de gestion veterinaria
+  description: "Clientes, mascotas, veterinarios, farmacia, consultas, diagnosticos\
+    \ y recetas. Todas las rutas, salvo el login, exigen un token JWT en la cabecera\
+    \ Authorization."
+  version: 1.0.0
+servers:
+- url: http://localhost:8080
+  description: Backend local
+paths:
+  /api/veterinarios/{id}:
+    get:
+      tags:
+      - Veterinarios
+      summary: Obtener veterinario por id
+      operationId: obtenerVeterinario
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Veterinario"
+        "401":
+          description: Falta el token o es invalido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "404":
+          description: El recurso o uno de los que referencia no existe
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+      security:
+      - bearerAuth: []
+    put:
+      tags:
+      - Veterinarios
+      summary: Actualizar veterinario
+      operationId: actualizarVeterinario
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Veterinario"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Veterinario"
+        "400":
+          description: Datos invalidos o regla de negocio incumplida
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "401":
+          description: Falta el token o es invalido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "403":
+          description: El rol del usuario no tiene permiso sobre esta ruta
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "404":
+          description: El recurso o uno de los que referencia no existe
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+      security:
+      - bearerAuth: []
+    delete:
+      tags:
+      - Veterinarios
+      summary: Eliminar veterinario
+      operationId: eliminarVeterinario
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "204":
+          description: Recurso eliminado
+        "409":
+          description: El registro tiene otros datos asociados
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "401":
+          description: Falta el token o es invalido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "403":
+          description: El rol del usuario no tiene permiso sobre esta ruta
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "404":
+          description: El recurso o uno de los que referencia no existe
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+      security:
+      - bearerAuth: []
+  /api/medicamentos/{id}:
+    get:
+      tags:
+      - Medicamentos
+      summary: Obtener medicamento por id
+      operationId: obtenerMedicamento
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Medicamento"
+        "401":
+          description: Falta el token o es invalido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "404":
+          description: El recurso o uno de los que referencia no existe
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+      security:
+      - bearerAuth: []
+    put:
+      tags:
+      - Medicamentos
+      summary: Actualizar medicamento
+      operationId: actualizarMedicamento
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Medicamento"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Medicamento"
+        "400":
+          description: Datos invalidos o regla de negocio incumplida
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "401":
+          description: Falta el token o es invalido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "403":
+          description: El rol del usuario no tiene permiso sobre esta ruta
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "404":
+          description: El recurso o uno de los que referencia no existe
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+      security:
+      - bearerAuth: []
+    delete:
+      tags:
+      - Medicamentos
+      summary: Eliminar medicamento
+      operationId: eliminarMedicamento
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "204":
+          description: Recurso eliminado
+        "409":
+          description: El registro tiene otros datos asociados
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "401":
+          description: Falta el token o es invalido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "403":
+          description: El rol del usuario no tiene permiso sobre esta ruta
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "404":
+          description: El recurso o uno de los que referencia no existe
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+      security:
+      - bearerAuth: []
+  /api/mascotas/{id}:
+    get:
+      tags:
+      - Mascotas
+      summary: Obtener mascota por id
+      operationId: obtenerMascota
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Mascota"
+        "401":
+          description: Falta el token o es invalido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "404":
+          description: El recurso o uno de los que referencia no existe
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+      security:
+      - bearerAuth: []
+    put:
+      tags:
+      - Mascotas
+      summary: Actualizar mascota
+      operationId: actualizarMascota
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Mascota"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Mascota"
+        "400":
+          description: Datos invalidos o regla de negocio incumplida
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "401":
+          description: Falta el token o es invalido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "404":
+          description: El recurso o uno de los que referencia no existe
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+      security:
+      - bearerAuth: []
+    delete:
+      tags:
+      - Mascotas
+      summary: Eliminar mascota
+      operationId: eliminarMascota
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "204":
+          description: Recurso eliminado
+        "409":
+          description: El registro tiene otros datos asociados
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "401":
+          description: Falta el token o es invalido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "403":
+          description: El rol del usuario no tiene permiso sobre esta ruta
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "404":
+          description: El recurso o uno de los que referencia no existe
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+      security:
+      - bearerAuth: []
+  /api/diagnosticos/{id}:
+    get:
+      tags:
+      - Diagnosticos
+      summary: Obtener diagnostico por id
+      operationId: obtenerDiagnostico
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Diagnostico"
+        "401":
+          description: Falta el token o es invalido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "403":
+          description: El rol del usuario no tiene permiso sobre esta ruta
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "404":
+          description: El recurso o uno de los que referencia no existe
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+      security:
+      - bearerAuth: []
+    put:
+      tags:
+      - Diagnosticos
+      summary: Actualizar diagnostico
+      operationId: actualizarDiagnostico
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Diagnostico"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Diagnostico"
+        "400":
+          description: Datos invalidos o regla de negocio incumplida
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "401":
+          description: Falta el token o es invalido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "403":
+          description: El rol del usuario no tiene permiso sobre esta ruta
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "404":
+          description: El recurso o uno de los que referencia no existe
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+      security:
+      - bearerAuth: []
+    delete:
+      tags:
+      - Diagnosticos
+      summary: Eliminar diagnostico
+      operationId: eliminarDiagnostico
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "204":
+          description: Recurso eliminado
+        "409":
+          description: El registro tiene otros datos asociados
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "401":
+          description: Falta el token o es invalido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "403":
+          description: El rol del usuario no tiene permiso sobre esta ruta
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "404":
+          description: El recurso o uno de los que referencia no existe
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+      security:
+      - bearerAuth: []
+  /api/consultas/{id}:
+    get:
+      tags:
+      - Consultas
+      summary: Obtener consulta por id
+      operationId: obtenerConsulta
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConsultaMedica"
+        "401":
+          description: Falta el token o es invalido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "403":
+          description: El rol del usuario no tiene permiso sobre esta ruta
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "404":
+          description: El recurso o uno de los que referencia no existe
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+      security:
+      - bearerAuth: []
+    put:
+      tags:
+      - Consultas
+      summary: Actualizar consulta
+      operationId: actualizarConsulta
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConsultaMedica"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConsultaMedica"
+        "400":
+          description: Datos invalidos o regla de negocio incumplida
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "401":
+          description: Falta el token o es invalido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "403":
+          description: El rol del usuario no tiene permiso sobre esta ruta
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "404":
+          description: El recurso o uno de los que referencia no existe
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+      security:
+      - bearerAuth: []
+    delete:
+      tags:
+      - Consultas
+      summary: Eliminar consulta
+      operationId: eliminarConsulta
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "204":
+          description: Recurso eliminado
+        "409":
+          description: El registro tiene otros datos asociados
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "401":
+          description: Falta el token o es invalido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "403":
+          description: El rol del usuario no tiene permiso sobre esta ruta
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "404":
+          description: El recurso o uno de los que referencia no existe
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+      security:
+      - bearerAuth: []
+  /api/clientes/{id}:
+    get:
+      tags:
+      - Clientes
+      summary: Obtener cliente por id
+      operationId: obtenerCliente
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Cliente"
+        "401":
+          description: Falta el token o es invalido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "404":
+          description: El recurso o uno de los que referencia no existe
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+      security:
+      - bearerAuth: []
+    put:
+      tags:
+      - Clientes
+      summary: Actualizar cliente
+      operationId: actualizarCliente
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Cliente"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Cliente"
+        "400":
+          description: Datos invalidos o regla de negocio incumplida
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "401":
+          description: Falta el token o es invalido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "404":
+          description: El recurso o uno de los que referencia no existe
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+      security:
+      - bearerAuth: []
+    delete:
+      tags:
+      - Clientes
+      summary: Eliminar cliente
+      operationId: eliminarCliente
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "204":
+          description: Recurso eliminado
+        "409":
+          description: El registro tiene otros datos asociados
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "401":
+          description: Falta el token o es invalido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "403":
+          description: El rol del usuario no tiene permiso sobre esta ruta
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "404":
+          description: El recurso o uno de los que referencia no existe
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+      security:
+      - bearerAuth: []
+  /api/veterinarios:
+    get:
+      tags:
+      - Veterinarios
+      summary: Listar veterinarios
+      operationId: listarVeterinarios
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Veterinario"
+        "401":
+          description: Falta el token o es invalido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+      security:
+      - bearerAuth: []
+    post:
+      tags:
+      - Veterinarios
+      summary: Crear veterinario
+      operationId: crearVeterinario
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Veterinario"
+        required: true
+      responses:
+        "201":
+          description: Recurso creado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Veterinario"
+        "400":
+          description: Datos invalidos o regla de negocio incumplida
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "401":
+          description: Falta el token o es invalido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "403":
+          description: El rol del usuario no tiene permiso sobre esta ruta
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+      security:
+      - bearerAuth: []
+  /api/usuarios:
+    get:
+      tags:
+      - Usuarios
+      summary: Listar usuarios
+      operationId: listarUsuarios
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Usuario"
+        "401":
+          description: Falta el token o es invalido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "403":
+          description: El rol del usuario no tiene permiso sobre esta ruta
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+      security:
+      - bearerAuth: []
+    post:
+      tags:
+      - Usuarios
+      summary: Crear usuario
+      operationId: crearUsuario
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Usuario"
+        required: true
+      responses:
+        "201":
+          description: Recurso creado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Usuario"
+        "400":
+          description: Datos invalidos o regla de negocio incumplida
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "401":
+          description: Falta el token o es invalido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "403":
+          description: El rol del usuario no tiene permiso sobre esta ruta
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+      security:
+      - bearerAuth: []
+  /api/prescripciones:
+    get:
+      tags:
+      - Prescripciones
+      summary: Listar prescripciones
+      operationId: listarPrescripciones
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Prescripcion"
+        "401":
+          description: Falta el token o es invalido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "403":
+          description: El rol del usuario no tiene permiso sobre esta ruta
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+      security:
+      - bearerAuth: []
+    post:
+      tags:
+      - Prescripciones
+      summary: Crear prescripcion
+      operationId: crearPrescripcion
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Prescripcion"
+        required: true
+      responses:
+        "201":
+          description: Recurso creado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Prescripcion"
+        "400":
+          description: Datos invalidos o regla de negocio incumplida
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "401":
+          description: Falta el token o es invalido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "403":
+          description: El rol del usuario no tiene permiso sobre esta ruta
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "404":
+          description: El recurso o uno de los que referencia no existe
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+      security:
+      - bearerAuth: []
+  /api/medicamentos:
+    get:
+      tags:
+      - Medicamentos
+      summary: Listar medicamentos
+      operationId: listarMedicamentos
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Medicamento"
+        "401":
+          description: Falta el token o es invalido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+      security:
+      - bearerAuth: []
+    post:
+      tags:
+      - Medicamentos
+      summary: Crear medicamento
+      operationId: crearMedicamento
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Medicamento"
+        required: true
+      responses:
+        "201":
+          description: Recurso creado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Medicamento"
+        "400":
+          description: Datos invalidos o regla de negocio incumplida
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "401":
+          description: Falta el token o es invalido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "403":
+          description: El rol del usuario no tiene permiso sobre esta ruta
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+      security:
+      - bearerAuth: []
+  /api/mascotas:
+    get:
+      tags:
+      - Mascotas
+      summary: Listar mascotas
+      operationId: listarMascotas
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Mascota"
+        "401":
+          description: Falta el token o es invalido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+      security:
+      - bearerAuth: []
+    post:
+      tags:
+      - Mascotas
+      summary: Crear mascota
+      operationId: crearMascota
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Mascota"
+        required: true
+      responses:
+        "201":
+          description: Recurso creado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Mascota"
+        "400":
+          description: Datos invalidos o regla de negocio incumplida
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "401":
+          description: Falta el token o es invalido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "404":
+          description: El recurso o uno de los que referencia no existe
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+      security:
+      - bearerAuth: []
+  /api/diagnosticos:
+    get:
+      tags:
+      - Diagnosticos
+      summary: Listar diagnosticos
+      operationId: listarDiagnosticos
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Diagnostico"
+        "401":
+          description: Falta el token o es invalido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "403":
+          description: El rol del usuario no tiene permiso sobre esta ruta
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+      security:
+      - bearerAuth: []
+    post:
+      tags:
+      - Diagnosticos
+      summary: Crear diagnostico
+      operationId: crearDiagnostico
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Diagnostico"
+        required: true
+      responses:
+        "201":
+          description: Recurso creado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Diagnostico"
+        "400":
+          description: Datos invalidos o regla de negocio incumplida
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "401":
+          description: Falta el token o es invalido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "403":
+          description: El rol del usuario no tiene permiso sobre esta ruta
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "404":
+          description: El recurso o uno de los que referencia no existe
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+      security:
+      - bearerAuth: []
+  /api/consultas:
+    get:
+      tags:
+      - Consultas
+      summary: Listar consultas
+      operationId: listarConsultas
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ConsultaMedica"
+        "401":
+          description: Falta el token o es invalido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "403":
+          description: El rol del usuario no tiene permiso sobre esta ruta
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+      security:
+      - bearerAuth: []
+    post:
+      tags:
+      - Consultas
+      summary: Crear consulta
+      operationId: crearConsulta
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConsultaMedica"
+        required: true
+      responses:
+        "201":
+          description: Recurso creado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConsultaMedica"
+        "400":
+          description: Datos invalidos o regla de negocio incumplida
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "401":
+          description: Falta el token o es invalido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "403":
+          description: El rol del usuario no tiene permiso sobre esta ruta
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "404":
+          description: El recurso o uno de los que referencia no existe
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+      security:
+      - bearerAuth: []
+  /api/clientes:
+    get:
+      tags:
+      - Clientes
+      summary: Listar clientes
+      operationId: listarClientes
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Cliente"
+        "401":
+          description: Falta el token o es invalido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+      security:
+      - bearerAuth: []
+    post:
+      tags:
+      - Clientes
+      summary: Crear cliente
+      operationId: crearCliente
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Cliente"
+        required: true
+      responses:
+        "201":
+          description: Recurso creado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Cliente"
+        "400":
+          description: Datos invalidos o regla de negocio incumplida
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "401":
+          description: Falta el token o es invalido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+      security:
+      - bearerAuth: []
+  /api/auth/login:
+    post:
+      tags:
+      - Autenticacion
+      summary: Iniciar sesion y obtener un token JWT
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "401":
+          description: Usuario o contrasena incorrectos
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+      security: []
+  /api/usuarios/{id}:
+    get:
+      tags:
+      - Usuarios
+      summary: Obtener usuario por id
+      operationId: obtenerUsuario
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Usuario"
+        "401":
+          description: Falta el token o es invalido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "403":
+          description: El rol del usuario no tiene permiso sobre esta ruta
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "404":
+          description: El recurso o uno de los que referencia no existe
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+      security:
+      - bearerAuth: []
+    delete:
+      tags:
+      - Usuarios
+      summary: Eliminar usuario
+      operationId: eliminarUsuario
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "204":
+          description: Recurso eliminado
+        "409":
+          description: El registro tiene otros datos asociados
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "401":
+          description: Falta el token o es invalido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "403":
+          description: El rol del usuario no tiene permiso sobre esta ruta
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "404":
+          description: El recurso o uno de los que referencia no existe
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+      security:
+      - bearerAuth: []
+  /api/prescripciones/{id}:
+    get:
+      tags:
+      - Prescripciones
+      summary: Obtener prescripcion por id
+      operationId: obtenerPrescripcion
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Prescripcion"
+        "401":
+          description: Falta el token o es invalido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "403":
+          description: El rol del usuario no tiene permiso sobre esta ruta
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "404":
+          description: El recurso o uno de los que referencia no existe
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+      security:
+      - bearerAuth: []
+    delete:
+      tags:
+      - Prescripciones
+      summary: Eliminar prescripcion
+      operationId: eliminarPrescripcion
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "204":
+          description: Recurso eliminado
+        "409":
+          description: El registro tiene otros datos asociados
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "401":
+          description: Falta el token o es invalido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "403":
+          description: El rol del usuario no tiene permiso sobre esta ruta
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "404":
+          description: El recurso o uno de los que referencia no existe
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+      security:
+      - bearerAuth: []
+  /api/prescripciones/consulta/{consultaId}:
+    get:
+      tags:
+      - Prescripciones
+      summary: Listar prescripciones por consulta
+      operationId: listarPrescripcionesPorConsulta
+      parameters:
+      - name: consultaId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Prescripcion"
+        "401":
+          description: Falta el token o es invalido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "403":
+          description: El rol del usuario no tiene permiso sobre esta ruta
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "404":
+          description: El recurso o uno de los que referencia no existe
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+      security:
+      - bearerAuth: []
+  /api/mascotas/cliente/{clienteId}:
+    get:
+      tags:
+      - Mascotas
+      summary: Listar mascotas por cliente
+      operationId: listarMascotasPorCliente
+      parameters:
+      - name: clienteId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Mascota"
+        "401":
+          description: Falta el token o es invalido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "404":
+          description: El recurso o uno de los que referencia no existe
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+      security:
+      - bearerAuth: []
+  /api/diagnosticos/consulta/{consultaId}:
+    get:
+      tags:
+      - Diagnosticos
+      summary: Listar diagnosticos por consulta
+      operationId: listarDiagnosticosPorConsulta
+      parameters:
+      - name: consultaId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Diagnostico"
+        "401":
+          description: Falta el token o es invalido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "403":
+          description: El rol del usuario no tiene permiso sobre esta ruta
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "404":
+          description: El recurso o uno de los que referencia no existe
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+      security:
+      - bearerAuth: []
+  /api/consultas/veterinario/{veterinarioId}:
+    get:
+      tags:
+      - Consultas
+      summary: Listar consultas por veterinario
+      operationId: listarConsultasPorVeterinario
+      parameters:
+      - name: veterinarioId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ConsultaMedica"
+        "401":
+          description: Falta el token o es invalido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "403":
+          description: El rol del usuario no tiene permiso sobre esta ruta
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "404":
+          description: El recurso o uno de los que referencia no existe
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+      security:
+      - bearerAuth: []
+  /api/consultas/mascota/{mascotaId}:
+    get:
+      tags:
+      - Consultas
+      summary: Listar consultas por mascota
+      operationId: listarConsultasPorMascota
+      parameters:
+      - name: mascotaId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ConsultaMedica"
+        "401":
+          description: Falta el token o es invalido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "403":
+          description: El rol del usuario no tiene permiso sobre esta ruta
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "404":
+          description: El recurso o uno de los que referencia no existe
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+      security:
+      - bearerAuth: []
+components:
+  schemas:
+    Veterinario:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        nombre:
+          type: string
+        tarjetaProfesional:
+          type: string
+        especialidad:
+          type: string
+        telefono:
+          type: string
+        email:
+          type: string
+    Medicamento:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        nombre:
+          type: string
+        principioActivo:
+          type: string
+        presentacion:
+          type: string
+        precio:
+          type: number
+          format: double
+        stock:
+          type: integer
+          format: int32
+        stockMinimo:
+          type: integer
+          format: int32
+    Cliente:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        nombre:
+          type: string
+        telefono:
+          type: string
+        email:
+          type: string
+    Mascota:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        nombre:
+          type: string
+        especie:
+          type: string
+        raza:
+          type: string
+        edad:
+          type: integer
+          format: int32
+        cliente:
+          $ref: "#/components/schemas/Cliente"
+    ConsultaMedica:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        mascota:
+          $ref: "#/components/schemas/Mascota"
+        veterinario:
+          $ref: "#/components/schemas/Veterinario"
+        fechaHora:
+          type: string
+          format: date-time
+        motivo:
+          type: string
+        pesoKg:
+          type: number
+          format: double
+        temperaturaC:
+          type: number
+          format: double
+        observaciones:
+          type: string
+    Diagnostico:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        consulta:
+          $ref: "#/components/schemas/ConsultaMedica"
+        descripcion:
+          type: string
+        gravedad:
+          type: string
+        tratamiento:
+          type: string
+    Usuario:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        username:
+          type: string
+        password:
+          type: string
+          writeOnly: true
+        rol:
+          type: string
+          enum:
+          - ADMIN
+          - VETERINARIO
+          - RECEPCIONISTA
+        nombreCompleto:
+          type: string
+    Prescripcion:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        consulta:
+          $ref: "#/components/schemas/ConsultaMedica"
+        medicamento:
+          $ref: "#/components/schemas/Medicamento"
+        dosis:
+          type: string
+        duracion:
+          type: string
+        cantidad:
+          type: integer
+          format: int32
+    LoginRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        username:
+          type: string
+        rol:
+          type: string
+        nombreCompleto:
+          type: string
+        expiraEnMs:
+          type: integer
+          format: int64
+    ErrorRespuesta:
+      type: object
+      description: Cuerpo de todas las respuestas de error
+      properties:
+        timestamp:
+          type: string
+          example: 2026-11-05T18:30:00
+        status:
+          type: integer
+          format: int32
+          example: 404
+        error:
+          type: string
+          example: Not Found
+        message:
+          type: string
+          example: Cliente no encontrado con id 99
+  securitySchemes:
+    bearerAuth:
+      type: http
+      description: Token obtenido en POST /api/auth/login
+      scheme: bearer
+      bearerFormat: JWT
