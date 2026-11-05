@@ -107,6 +107,9 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog.c
             <div class="form-group">
               <label class="form-label">Tel&eacute;fono *</label>
               <input type="text" class="form-control" formControlName="telefono" placeholder="Ej. 3109876543">
+              @if (vetForm.get('telefono')?.touched && vetForm.get('telefono')?.invalid) {
+                <span class="field-error">El tel&eacute;fono debe tener 10 d&iacute;gitos.</span>
+              }
             </div>
             <div class="form-group">
               <label class="form-label">Correo Electr&oacute;nico *</label>
@@ -256,7 +259,7 @@ export class VeterinariosComponent implements OnInit {
     nombre: ['', Validators.required],
     tarjetaProfesional: ['', Validators.required],
     especialidad: ['', Validators.required],
-    telefono: ['', Validators.required],
+    telefono: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
     email: ['', [Validators.required, Validators.email]]
   });
 

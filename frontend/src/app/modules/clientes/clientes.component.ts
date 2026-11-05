@@ -112,7 +112,7 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog.c
             <label class="form-label">Tel&eacute;fono *</label>
             <input type="text" class="form-control" formControlName="telefono" placeholder="Ej. 3001234567">
             @if (clienteForm.get('telefono')?.touched && clienteForm.get('telefono')?.invalid) {
-              <span class="field-error">El tel&eacute;fono es obligatorio.</span>
+              <span class="field-error">El tel&eacute;fono debe tener 10 d&iacute;gitos.</span>
             }
           </div>
 
@@ -260,7 +260,7 @@ export class ClientesComponent implements OnInit {
 
   clienteForm = this.fb.group({
     nombre: ['', Validators.required],
-    telefono: ['', Validators.required],
+    telefono: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
     email: ['', [Validators.required, Validators.email]]
   });
 
